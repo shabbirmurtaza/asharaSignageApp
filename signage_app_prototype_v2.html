@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ashara Mubaraka Signage System &mdash; Approval Prototype v2</title>
+<style>
+:root{
+  --bg:#FAFAF7; --card:#FFFFFF; --surface:#F4F2EC; --tertiary:#EFEDE6;
+  --text:#1F1F1D; --muted:#6F6E68; --hint:#A3A09A;
+  --border:rgba(0,0,0,0.08); --border-strong:rgba(0,0,0,0.16);
+  --info:#185FA5; --info-bg:#E6F1FB; --info-border:#B8D4F0;
+  --success:#3B6D11; --success-bg:#EAF3DE; --success-border:#C5DAA8;
+  --warn:#BA7517; --warn-bg:#FAEEDA; --warn-border:#E8C698;
+  --danger:#A32D2D; --danger-bg:#FCEBEB; --danger-border:#EFB8B8;
+  --purple:#534AB7; --purple-bg:#EEEDFE; --purple-border:#C4C0EC;
+  --teal:#0F6E56; --teal-bg:#E1F5EE; --teal-border:#A6D8C5;
+  --radius-sm:6px; --radius-md:10px; --radius-lg:14px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg:0 8px 24px rgba(0,0,0,0.08);
+  --transition:all 0.15s ease;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:inherit}
+h1,h2,h3,h4{margin:0;font-weight:500;letter-spacing:-0.01em}
+h1{font-size:24px;line-height:1.2}
+h2{font-size:18px}
+h3{font-size:15px}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+
+/* ===== SIDEBAR ===== */
+.sb{background:var(--card);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.sb-brand{padding:20px;border-bottom:1px solid var(--border)}
+.sb-logo{display:flex;align-items:center;gap:10px}
+.sb-logo-mark{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#1F1F1D 0%,#3a3a36 100%);color:#FFF;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;letter-spacing:-0.02em}
+.sb-logo-name{font-weight:500;font-size:14px;line-height:1.2}
+.sb-logo-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.sb-nav{padding:14px 12px;flex:1}
+.sb-section{margin-bottom:18px}
+.sb-section-h{font-size:10px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:0.08em;padding:0 10px 8px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-weight:400;border:none;background:transparent;width:100%;text-align:left;margin-bottom:2px;transition:var(--transition)}
+.sb-item:hover{background:var(--surface)}
+.sb-item.active{background:var(--text);color:#FFF;font-weight:500}
+.sb-item .sb-icon{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+.sb-item .count{margin-left:auto;font-size:10px;background:var(--tertiary);padding:1px 7px;border-radius:8px;font-weight:500;color:var(--muted)}
+.sb-item.active .count{background:rgba(255,255,255,0.18);color:#FFF}
+.sb-role{padding:14px 16px;border-top:1px solid var(--border);background:var(--bg)}
+.sb-role-label{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;font-weight:600}
+.sb-role-select{width:100%;height:34px;padding:0 8px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--card);font-size:13px}
+.sb-role-helper{margin-top:6px;font-size:11px;color:var(--muted);line-height:1.4}
+
+/* ===== MAIN ===== */
+.main{padding:32px 40px 100px;max-width:1400px;width:100%}
+.page-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:16px;flex-wrap:wrap}
+.page-h h1{margin:0}
+.page-sub{color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.4}
+.page-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* ===== ROLE BADGE (sticky) ===== */
+.role-badge{position:fixed;top:16px;right:24px;background:var(--card);border:1px solid var(--border-strong);border-radius:20px;padding:5px 12px 5px 6px;font-size:12px;display:inline-flex;align-items:center;gap:8px;z-index:50;box-shadow:var(--shadow-sm)}
+.role-badge .dot{width:18px;height:18px;border-radius:50%;background:var(--text);color:#FFF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+.role-badge.r-hod .dot{background:#185FA5}
+.role-badge.r-admin .dot{background:#A32D2D}
+.role-badge.r-designer .dot{background:#534AB7}
+.role-badge.r-production .dot{background:#BA7517}
+.role-badge.r-viewer .dot{background:#6F6E68}
+
+/* ===== BUTTONS ===== */
+.btn{height:34px;padding:0 14px;border-radius:var(--radius-sm);border:1px solid var(--border-strong);background:var(--card);color:var(--text);font-size:13px;font-weight:400;display:inline-flex;align-items:center;gap:6px;transition:var(--transition);text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--surface);border-color:var(--text)}
+.btn:active{transform:translateY(0.5px)}
+.btn.primary{background:var(--text);color:#FFF;border-color:var(--text)}
+.btn.primary:hover{background:#000}
+.btn.primary:disabled{opacity:0.4;cursor:not-allowed}
+.btn.success{background:var(--success);color:#FFF;border-color:var(--success)}
+.btn.success:hover{background:#2D5408}
+.btn.danger{color:var(--danger);border-color:var(--danger)}
+.btn.danger:hover{background:var(--danger-bg)}
+.btn.sm{height:28px;padding:0 10px;font-size:12px}
+.btn.lg{height:42px;padding:0 18px;font-size:14px;font-weight:500}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--surface);border-color:var(--border-strong)}
+
+/* ===== CARDS ===== */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px}
+.card-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px}
+.card-h h2{margin:0}
+
+/* ===== STATS ===== */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px}
+.stat .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;font-weight:600}
+.stat .val{font-size:26px;font-weight:500;line-height:1.05}
+.stat .sub{font-size:11px;color:var(--hint);margin-top:3px}
+.stat.accent{background:linear-gradient(135deg,#1F1F1D 0%,#2a2a26 100%);color:#FFF;border-color:var(--text)}
+.stat.accent .lbl{color:rgba(255,255,255,0.7)}
+.stat.accent .sub{color:rgba(255,255,255,0.6)}
+
+/* ===== HERO BANNER (HOD) ===== */
+.hero{background:linear-gradient(135deg,#FBF7E8 0%,#F5F0DC 100%);border:1px solid #E8DCB0;border-radius:var(--radius-lg);padding:24px 28px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.hero-info{flex:1;min-width:220px}
+.hero h2{font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.hero p{margin:0;font-size:13px;color:var(--muted);line-height:1.4}
+.hero-cta{display:flex;gap:10px;align-items:center;flex-shrink:0}
+
+/* ===== DEPT SWITCHER (admin only) ===== */
+.dept-switcher{margin-bottom:18px;padding:14px 16px;background:var(--info-bg);border:1px solid var(--info-border);border-radius:var(--radius-md);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dept-switcher .lbl{font-size:12px;font-weight:500;color:var(--info)}
+.dept-switcher select{height:32px;padding:0 10px;border:1px solid var(--info-border);border-radius:var(--radius-sm);background:var(--card);font-size:13px;min-width:200px}
+
+/* ===== SEARCH BAR & FILTERS ===== */
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.search{flex:1;min-width:240px;position:relative}
+.search input{width:100%;height:38px;padding:0 14px 0 38px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--card);font-size:13px;transition:var(--transition)}
+.search input:focus{outline:none;border-color:var(--text);box-shadow:0 0 0 3px rgba(0,0,0,0.05)}
+.search:before{content:"\2315";position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
+.filter-pills{display:flex;gap:6px;flex-wrap:wrap}
+.fp{padding:6px 12px;border:1px solid var(--border-strong);border-radius:16px;background:var(--card);font-size:12px;color:var(--muted);transition:var(--transition);font-weight:400;display:inline-flex;align-items:center;gap:5px}
+.fp:hover{color:var(--text);border-color:var(--text)}
+.fp.active{background:var(--text);color:#FFF;border-color:var(--text);font-weight:500}
+.fp .count{font-size:10px;background:rgba(255,255,255,0.2);padding:1px 6px;border-radius:8px}
+.fp:not(.active) .count{background:var(--tertiary)}
+
+/* ===== TABS ===== */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:18px}
+.tabs .tab{padding:10px 14px;font-size:13px;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:400;transition:var(--transition)}
+.tabs .tab:hover{color:var(--text)}
+.tabs .tab.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+
+/* ===== SIGN TYPE BADGES ===== */
+.tbadge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 8px;border-radius:12px;white-space:nowrap}
+.tbadge .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.t-prohibition   {background:#FCEBEB;color:#791F1F}
+.t-mandatory     {background:#E6F1FB;color:#0C447C}
+.t-warning       {background:#FAEEDA;color:#633806}
+.t-safe_condition{background:#EAF3DE;color:#27500A}
+.t-direction     {background:#E1F5EE;color:#085041}
+.t-place         {background:#EEEDFE;color:#3C3489}
+.t-notice        {background:#F4F2EC;color:#444441}
+.t-prohibition .dot{background:#A32D2D}
+.t-mandatory .dot{background:#185FA5}
+.t-warning .dot{background:#BA7517}
+.t-safe_condition .dot{background:#3B6D11}
+.t-direction .dot{background:#0F6E56}
+.t-place .dot{background:#534AB7}
+.t-notice .dot{background:#888780}
+
+/* ===== STATUS PILLS ===== */
+.spill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:10px;white-space:nowrap}
+.s-pending  {background:var(--tertiary);color:#444}
+.s-approved {background:var(--info-bg);color:var(--info)}
+.s-designing{background:var(--purple-bg);color:var(--purple)}
+.s-printing {background:var(--warn-bg);color:var(--warn)}
+.s-ready    {background:var(--success-bg);color:var(--success)}
+.s-rejected {background:var(--danger-bg);color:var(--danger)}
+.s-cancelled{background:#F4F2EC;color:#888;text-decoration:line-through}
+
+/* ===== GROUPS (HOD dashboard) ===== */
+.group{border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--card);margin-bottom:14px;overflow:hidden}
+.group-head{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:var(--surface);border-bottom:1px solid var(--border);transition:var(--transition)}
+.group-head:hover{background:var(--tertiary)}
+.group-head h3{margin:0;font-size:15px}
+.group-head .meta{font-size:12px;color:var(--muted);margin-top:3px}
+.group-head .right{display:flex;align-items:center;gap:12px}
+.group-body.hidden{display:none}
+
+.subgroup{border-top:1px solid var(--border)}
+.subgroup:first-child{border-top:none}
+.subgroup-head{padding:10px 20px;display:flex;align-items:center;gap:10px;background:var(--bg);font-size:12px;color:var(--muted)}
+.subgroup-head .lbl{font-weight:600;color:var(--text);font-size:12px}
+.subgroup-head .count{margin-left:auto;font-size:11px}
+.subgroup-head .sub-actions{display:flex;gap:6px;margin-left:auto}
+
+/* ===== SIGN ROW ===== */
+.signrow{display:grid;grid-template-columns:24px 1fr 80px 80px 80px 110px 70px;gap:14px;align-items:center;padding:12px 20px;border-top:1px solid var(--border);font-size:13px;transition:background 0.1s}
+.signrow:first-child{border-top:none}
+.signrow:hover{background:var(--bg)}
+.signrow.selected{background:#FAFCEC}
+.signrow input[type=checkbox]{width:16px;height:16px;cursor:pointer;margin:0;accent-color:var(--text)}
+.signrow .nm{font-weight:400;line-height:1.3}
+.signrow .nm .l{font-size:11px;color:var(--muted);margin-top:3px;direction:rtl;font-family:Arial,sans-serif}
+.signrow .y-cell{font-size:12px;text-align:center;color:var(--muted)}
+.signrow .y-cell b{font-size:13px;color:var(--text);font-weight:500;display:block;line-height:1.2}
+.signrow .y-cell .y-empty{color:var(--hint);font-style:italic;font-size:11px}
+.signrow select{height:28px;font-size:12px;padding:0 6px;width:100%;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--card)}
+.signrow input[type=number]{width:60px;height:28px;font-size:12px;padding:4px 6px;text-align:center;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--card)}
+.signrow.head{background:var(--bg);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;padding:9px 20px;font-weight:600}
+
+/* ===== ADD VARIANT ===== */
+.add{padding:12px 20px;border-top:1px dashed var(--border);background:var(--bg)}
+.add summary{font-size:12px;color:var(--info);cursor:pointer;font-weight:500;list-style:none;display:flex;align-items:center;gap:6px}
+.add summary::-webkit-details-marker{display:none}
+.add summary::before{content:"+";font-size:14px;font-weight:500;width:16px;text-align:center}
+.add[open] summary::before{content:"\2212"}
+.add-form{display:grid;gap:10px;margin-top:12px;padding:14px;background:var(--card);border-radius:var(--radius-md);border:1px solid var(--border)}
+.add-form .row1{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.add-form label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;font-weight:600}
+.add-form input,.add-form select{height:34px;font-size:13px;width:100%;padding:0 10px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--card)}
+.add-form .preview{font-size:13px;padding:10px 12px;background:var(--surface);border-radius:var(--radius-sm);min-height:18px;font-style:italic;color:var(--muted)}
+.add-form .preview.ok{color:var(--success);background:var(--success-bg)}
+.add-form .preview.err{color:var(--danger);background:var(--danger-bg)}
+.add-form .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:14px;background:var(--surface);font-size:12px;cursor:pointer;border:1px solid transparent;transition:var(--transition)}
+.chip:hover{background:var(--tertiary);border-color:var(--border-strong)}
+.chip.suggested{background:var(--info-bg);color:var(--info);border-color:var(--info-border)}
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+
+/* ===== STICKY FOOTER BAR ===== */
+.footbar{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--border-strong);padding:14px 0;margin:24px -40px -100px;padding-left:40px;padding-right:40px;display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:0 -2px 12px rgba(0,0,0,0.04);z-index:30}
+.foot-l{font-size:13px;color:var(--muted)}
+.foot-l b{color:var(--text);font-weight:500}
+
+/* ===== KANBAN ===== */
+.kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:10px}
+.kcol{background:var(--surface);border-radius:var(--radius-md);padding:12px;min-height:480px;display:flex;flex-direction:column}
+.kcol-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:0 4px}
+.kcol-h h3{margin:0;font-size:13px;font-weight:500}
+.kcol-h .count{font-size:11px;color:var(--muted);background:var(--card);padding:1px 7px;border-radius:8px}
+.kcol-body{flex:1;overflow-y:auto;max-height:600px}
+.kcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;font-size:12px;cursor:pointer;transition:var(--transition)}
+.kcard:hover{border-color:var(--text);box-shadow:var(--shadow-sm)}
+.kcard .nm{font-weight:500;font-size:12px;line-height:1.3;margin-bottom:6px}
+.kcard .meta{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.kcard .meta .qty{font-weight:600;color:var(--text)}
+
+/* ===== QUEUE (admin) ===== */
+.queue-row{display:grid;grid-template-columns:1fr 130px 70px 100px 100px 130px;gap:14px;align-items:center;padding:12px 18px;border-top:1px solid var(--border);font-size:13px}
+.queue-row:first-child{border-top:none}
+.queue-row.head{background:var(--surface);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;padding:9px 18px;font-weight:600}
+.queue-row:hover:not(.head){background:var(--bg)}
+.queue-row .nm{font-weight:500}
+.queue-row .nm .l{font-size:11px;color:var(--muted);margin-top:2px;direction:rtl;font-family:Arial,sans-serif}
+.queue-row.expanded{background:var(--bg)}
+.queue-detail{padding:14px 18px;background:var(--bg);border-top:1px solid var(--border);animation:slideDown 0.15s}
+@keyframes slideDown{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.queue-detail .form-row{margin:8px 0}
+.queue-detail textarea{width:100%;min-height:64px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);font-family:inherit;font-size:13px;background:var(--card);resize:vertical}
+.queue-detail textarea:focus{outline:none;border-color:var(--text);box-shadow:0 0 0 3px rgba(0,0,0,0.05)}
+.queue-detail .actions{display:flex;gap:8px;margin-top:10px}
+
+/* ===== LIBRARY ===== */
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.lib-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;cursor:pointer;transition:var(--transition)}
+.lib-card:hover{border-color:var(--text);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+.lib-card .nm{font-weight:500;font-size:14px;margin-bottom:5px;line-height:1.3}
+.lib-card .l{font-size:12px;color:var(--muted);direction:rtl;font-family:Arial,sans-serif;margin-bottom:10px;min-height:18px}
+.lib-card .footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+
+/* ===== MODAL ===== */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(20,20,20,0.4);z-index:100;align-items:center;justify-content:center;padding:24px;animation:fadeIn 0.15s}
+.modal-bg.open{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--card);border-radius:var(--radius-lg);max-width:640px;width:100%;max-height:90vh;overflow:auto;padding:24px;animation:slideUp 0.2s}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.modal-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;gap:14px}
+.modal-x{background:transparent;border:none;font-size:22px;color:var(--muted);cursor:pointer;padding:0;width:28px;height:28px;border-radius:var(--radius-sm);transition:var(--transition);line-height:1}
+.modal-x:hover{background:var(--surface);color:var(--text)}
+.history-table{width:100%;border-collapse:collapse;margin-top:12px}
+.history-table th{font-size:11px;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600;letter-spacing:0.04em}
+.history-table td{padding:10px;border-bottom:1px solid var(--border);font-size:13px}
+
+/* ===== EVENT CONFIG ===== */
+.colour-picker{display:flex;gap:14px;align-items:center;padding:14px;background:var(--surface);border-radius:var(--radius-md);margin-bottom:10px}
+.colour-swatch{width:48px;height:48px;border-radius:var(--radius-sm);flex-shrink:0;border:1px solid var(--border-strong)}
+.colour-swatch.empty{background:repeating-linear-gradient(45deg,var(--tertiary) 0,var(--tertiary) 4px,var(--card) 4px,var(--card) 8px)}
+.colour-info{flex:1}
+.colour-info .lbl{font-size:13px;font-weight:500}
+.colour-info .desc{font-size:12px;color:var(--muted);margin-top:2px}
+.colour-info input[type=text]{margin-top:6px;width:120px;height:30px;padding:0 8px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);font-family:monospace;font-size:12px}
+.colour-info input[type=color]{width:60px;height:30px;padding:0;border:1px solid var(--border-strong);border-radius:var(--radius-sm);cursor:pointer;margin-left:6px;vertical-align:middle}
+
+/* ===== PRINT RUN ===== */
+.print-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;margin-bottom:12px}
+.print-card-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:14px}
+.print-card-h h3{margin:0;font-size:15px}
+.print-variants{margin-top:10px;background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px}
+.print-variants .pv{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--border);gap:10px}
+.print-variants .pv:last-child{border-bottom:none}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{text-align:center;padding:64px 24px;color:var(--muted)}
+.empty-state .icon{font-size:42px;margin-bottom:12px;opacity:0.4}
+.empty-state h3{font-size:17px;margin-bottom:8px;color:var(--text);font-weight:500}
+.empty-state p{margin:0 auto;max-width:380px;font-size:13px;line-height:1.5}
+.empty-state .actions{margin-top:20px}
+
+/* ===== TOAST ===== */
+.toasts{position:fixed;top:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:360px}
+.toast{background:var(--text);color:#FFF;padding:12px 16px;border-radius:var(--radius-sm);font-size:13px;box-shadow:var(--shadow-lg);animation:slideInR 0.2s;display:flex;align-items:center;gap:10px}
+.toast.success{background:var(--success)}
+.toast.error{background:var(--danger)}
+.toast.info{background:var(--info)}
+@keyframes slideInR{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.toast .x{margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,0.7);font-size:18px;cursor:pointer;padding:0;line-height:1}
+.toast .x:hover{color:#FFF}
+
+/* ===== SUMMARY/BANNER ===== */
+.banner{background:var(--info-bg);border:1px solid var(--info-border);border-radius:var(--radius-md);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--info)}
+.banner.success{background:var(--success-bg);border-color:var(--success-border);color:var(--success)}
+.banner.warn{background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn)}
+.banner .icon{font-size:16px;flex-shrink:0}
+.banner-actions{margin-left:auto;display:flex;gap:6px}
+
+/* ===== UTILITIES ===== */
+.hidden{display:none !important}
+.muted{color:var(--muted)}
+.right{text-align:right}
+.center{text-align:center}
+.flex{display:flex;align-items:center;gap:8px}
+
+/* ===== MOBILE ===== */
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sb{position:static;height:auto}
+  .sb-nav{display:none}
+  .sb-nav.open{display:block}
+  .main{padding:20px 16px 100px}
+  .role-badge{position:static;margin-bottom:12px}
+  .signrow{grid-template-columns:24px 1fr 60px 60px 80px 60px;font-size:12px;gap:8px}
+  .signrow .y-cell:nth-child(3),.signrow .y-cell:nth-child(4){display:none}
+  .signrow.head .y-cell:nth-child(3),.signrow.head .y-cell:nth-child(4){display:none}
+  .kanban{grid-template-columns:1fr;gap:8px}
+  .queue-row{grid-template-columns:1fr 80px 60px;font-size:12px}
+  .queue-row > div:nth-child(4),.queue-row > div:nth-child(5),.queue-row > div:nth-child(6){display:none}
+  .footbar{margin:24px -16px -100px;padding-left:16px;padding-right:16px;flex-wrap:wrap}
+  .foot-l{order:2;width:100%;text-align:center;font-size:11px}
+  .footbar > div:last-child{order:1;width:100%}
+}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+</style>
+</head>
+<body>
+
+<div class="app">
+<aside class="sb" id="sidebar"></aside>
+<main class="main" id="main"></main>
+</div>
+
+<div class="modal-bg" id="modal-bg"><div class="modal" id="modal"></div></div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+const DATA = {"events":[{"id":"EV01","lbl":"1445 / Dubai","has":0},{"id":"EV02","lbl":"1446 / Karachi","has":0},{"id":"EV03","lbl":"1447 / Chennai","has":1}],"depts":[{"id":"D001","n":"Zakireen","hod":null},{"id":"D002","n":"Signage / Venue Maps","hod":"Shaikh Yusuf bhai Mohsin bhai Petiwala"},{"id":"D003","n":"Bethak","hod":null},{"id":"D004","n":"Mazaraat","hod":null},{"id":"D005","n":"Al-Vazarat Follow Up","hod":null},{"id":"D006","n":"PMO","hod":"Mulla Husain bhai Shaikh Mansoorali bhai Bakoo (BGI)"},{"id":"D007","n":"Qasar Mubarak","hod":null},{"id":"D008","n":"Zones","hod":null},{"id":"D009","n":"Tazyeen","hod":null},{"id":"D010","n":"Laundry","hod":null},{"id":"D011","n":"Human Resources","hod":null},{"id":"D012","n":"ITS","hod":null},{"id":"D013","n":"Waaz Talaqqi & Ohbat","hod":null},{"id":"D014","n":"Communications","hod":null},{"id":"D015","n":"Sehat, Medical","hod":null},{"id":"D016","n":"Food Hygiene & Safety","hod":null},{"id":"D017","n":"Karama","hod":null},{"id":"D018","n":"Security","hod":"Shaikh Yusuf bhai Mohsin bhai Petiwala"},{"id":"D019","n":"Accommodation","hod":"Shaikh Yusuf bhai Mohsin bhai Petiwala"},{"id":"D020","n":"Fire Safety / HSE","hod":null},{"id":"D021","n":"Central Office","hod":null},{"id":"D022","n":"IT Services","hod":null},{"id":"D023","n":"Mumineen Mehmaan Reception","hod":null},{"id":"D024","n":"Nazafat","hod":"Shaikh Yusuf bhai Mohsin bhai Petiwala"},{"id":"D025","n":"Flow Management","hod":"Shaikh Yusuf bhai Mohsin bhai Petiwala"},{"id":"D026","n":"Transport","hod":"Mulla Nooruddin bhai Shaikh Siraj bhai Valika"},{"id":"D027","n":"Mawaid","hod":"Shaikh Yusuf bhai Mohsin bhai Petiwala"},{"id":"D028","n":"AVRP","hod":null},{"id":"D029","n":"Construction","hod":null},{"id":"D030","n":"PR / Govt Relations","hod":null},{"id":"D031","n":"Procurement","hod":null},{"id":"D032","n":"Finance","hod":null}],"types":[{"n":"prohibition","lbl":"Prohibition","iso":1,"c":"#A32D2D","order":0},{"n":"warning","lbl":"Warning","iso":1,"c":"#BA7517","order":0},{"n":"mandatory","lbl":"Mandatory","iso":1,"c":"#185FA5","order":0},{"n":"safe_condition","lbl":"Safe condition","iso":1,"c":"#3B6D11","order":0},{"n":"direction","lbl":"Direction","iso":0,"c":null,"order":0},{"n":"place","lbl":"Place","iso":0,"c":null,"order":0},{"n":"notice","lbl":"Notice","iso":0,"c":null,"order":0}],"sizes":[{"id":"SZ001","l":"12x12 inches"},{"id":"SZ002","l":"12x16 inches"},{"id":"SZ003","l":"15x20 inches"},{"id":"SZ004","l":"16x16 inches"},{"id":"SZ005","l":"18x18 inches"},{"id":"SZ006","l":"24x24 inches"}],"templates":[{"id":"TPL01","name":"Way to ___","pattern":"Way to {destination} {direction}","st":"direction","schema":[{"name":"destination","type":"freeform","label":"Destination"},{"name":"direction","type":"fixed","label":"Direction","values":["Straight","Right","Left"]}]},{"id":"TPL02","name":"Bus to ___","pattern":"Bus to {mohallah}","st":"place","schema":[{"name":"mohallah","type":"freeform","label":"Mohallah / Destination"}]},{"id":"TPL03","name":"Gate ___","pattern":"Gate {number}","st":"place","schema":[{"name":"number","type":"freeform","label":"Gate Number"}]},{"id":"TPL04","name":"Gates ___ to ___ (direction)","pattern":"Gates {start} to {end} {direction}","st":"direction","schema":[{"name":"start","type":"freeform","label":"Start Gate"},{"name":"end","type":"freeform","label":"End Gate"},{"name":"direction","type":"fixed","label":"Direction","values":["Right","Left"]}]},{"id":"TPL05","name":"___ Walkway (direction)","pattern":"{gender} Walkway {direction}","st":"direction","schema":[{"name":"gender","type":"fixed","label":"Audience","values":["Gents","Ladies"]},{"name":"direction","type":"fixed","label":"Direction","values":["Straight","Right","Left"]}]},{"id":"TPL06","name":"Go (direction)","pattern":"Go {direction}","st":"direction","schema":[{"name":"direction","type":"fixed","label":"Direction","values":["Straight","Left","Right"]}]}],"signs":[{"id":"SG0001","n":"Bus to AMB","l":"بس - ( المحلة البرهانية )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"AMB"}},{"id":"SG0002","n":"Bus to Al Mohallahtul Mohammadiya","l":"بس - ( المحلة المحمدية )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Al Mohallahtul Mohammadiya"}},{"id":"SG0003","n":"Bus to Burhani Mohallah","l":"بس - ( برهاني محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Burhani Mohallah"}},{"id":"SG0004","n":"Bus to Essa Mohallah","l":"بس - ( عيسىْ محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Essa Mohallah"}},{"id":"SG0005","n":"Bus to Ezzy Mohallah","l":"بس - ( عزي محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Ezzy Mohallah"}},{"id":"SG0006","n":"Bus to Fakhri Mohallah","l":"بس - ( فخري محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Fakhri Mohallah"}},{"id":"SG0007","n":"Bus to Hasani Mohallah","l":"بس - ( حسني محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Hasani Mohallah"}},{"id":"SG0008","n":"Bus to Hussaini Mohallah","l":"بس - ( حسيني محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Hussaini Mohallah"}},{"id":"SG0009","n":"Bus to Hydrabad","l":"بس - (حيدراْباد)","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Hydrabad"}},{"id":"SG0010","n":"Bus to Ibrahim Mohallah","l":"بس - ( ابراهيم محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Ibrahim Mohallah"}},{"id":"SG0011","n":"Bus to Jamali Mohallah","l":"بس - ( جمالي محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Jamali Mohallah"}},{"id":"SG0012","n":"Bus to Jamea","l":"بس - (الجامعة السيفية )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Jamea"}},{"id":"SG0013","n":"Bus to Mohammadi Mohallah","l":"بس - ( محمدي محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Mohammadi Mohallah"}},{"id":"SG0014","n":"Bus to Qutbi Mohallah","l":"بس - ( قطبي محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Qutbi Mohallah"}},{"id":"SG0015","n":"Bus to Saifee Mohallah","l":"بس - ( سيفي محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Saifee Mohallah"}},{"id":"SG0016","n":"Bus to Saleh Mohallah","l":"بس - ( صالح محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Saleh Mohallah"}},{"id":"SG0017","n":"Bus to Yousufi Mohallah","l":"بس - ( يوسفي محلة )","v":1,"t":"TPL02","st":"place","sv":{"mohallah":"Yousufi Mohallah"}},{"id":"SG0018","n":"Gate 1","l":"ككـيضض نمبر  1","v":1,"t":"TPL03","st":"place","sv":{"number":"1"}},{"id":"SG0019","n":"Gate 10","l":"ككـيضض نمبر  10","v":1,"t":"TPL03","st":"place","sv":{"number":"10"}},{"id":"SG0020","n":"Gate 11","l":"ككـيضض نمبر  11","v":1,"t":"TPL03","st":"place","sv":{"number":"11"}},{"id":"SG0021","n":"Gate 12","l":"ككـيضض نمبر  12","v":1,"t":"TPL03","st":"place","sv":{"number":"12"}},{"id":"SG0022","n":"Gate 13","l":"ككـيضض نمبر  13","v":1,"t":"TPL03","st":"place","sv":{"number":"13"}},{"id":"SG0023","n":"Gate 14","l":"ككـيضض نمبر  14","v":1,"t":"TPL03","st":"place","sv":{"number":"14"}},{"id":"SG0024","n":"Gate 15","l":"ككـيضض نمبر  15","v":1,"t":"TPL03","st":"place","sv":{"number":"15"}},{"id":"SG0025","n":"Gate 16","l":"ككـيضض نمبر  16","v":1,"t":"TPL03","st":"place","sv":{"number":"16"}},{"id":"SG0026","n":"Gate 2","l":"ككـيضض نمبر  2","v":1,"t":"TPL03","st":"place","sv":{"number":"2"}},{"id":"SG0027","n":"Gate 3","l":"ككـيضض نمبر  3","v":1,"t":"TPL03","st":"place","sv":{"number":"3"}},{"id":"SG0028","n":"Gate 4","l":"ككـيضض نمبر  4","v":1,"t":"TPL03","st":"place","sv":{"number":"4"}},{"id":"SG0029","n":"Gate 5","l":"ككـيضض نمبر  5","v":1,"t":"TPL03","st":"place","sv":{"number":"5"}},{"id":"SG0030","n":"Gate 6","l":"ككـيضض نمبر  6","v":1,"t":"TPL03","st":"place","sv":{"number":"6"}},{"id":"SG0031","n":"Gate 7","l":"ككـيضض نمبر  7","v":1,"t":"TPL03","st":"place","sv":{"number":"7"}},{"id":"SG0032","n":"Gate 8","l":"ككـيضض نمبر  8","v":1,"t":"TPL03","st":"place","sv":{"number":"8"}},{"id":"SG0033","n":"Gate 9","l":"ككـيضض نمبر  9","v":1,"t":"TPL03","st":"place","sv":{"number":"9"}},{"id":"SG0034","n":"Gates 13 to 14 Left","l":"ككـيضض نمبر 13 - 14 (دابي طرف)","v":1,"t":"TPL04","st":"direction","sv":{"start":"13","end":"14","direction":"Left"}},{"id":"SG0035","n":"Gates 13 to 14 Right","l":"ككـيضض نمبر  13 - 14 (جمني طرف)","v":1,"t":"TPL04","st":"direction","sv":{"start":"13","end":"14","direction":"Right"}},{"id":"SG0036","n":"Gates 15 to 16 Left","l":"ككـيضض نمبر  15 - 16 (دابي طرف)","v":1,"t":"TPL04","st":"direction","sv":{"start":"15","end":"16","direction":"Left"}},{"id":"SG0037","n":"Gates 15 to 16 Right","l":"ككـيضض نمبر  15 - 16 (جمني طرف)","v":1,"t":"TPL04","st":"direction","sv":{"start":"15","end":"16","direction":"Right"}},{"id":"SG0038","n":"Gates 2 to 12 Left","l":"ككـيضض نمبر  2 - 12 (دابي طرف)","v":1,"t":"TPL04","st":"direction","sv":{"start":"2","end":"12","direction":"Left"}},{"id":"SG0039","n":"Gates 2 to 12 Right","l":"ككـيضض نمبر  2 - 12 (جمني طرف)","v":1,"t":"TPL04","st":"direction","sv":{"start":"2","end":"12","direction":"Right"}},{"id":"SG0040","n":"Go Left","l":"دابي طرف جاوو","v":1,"t":"TPL06","st":"direction","sv":{"direction":"Left"}},{"id":"SG0041","n":"Go Right","l":"جمني طرف جاوو","v":1,"t":"TPL06","st":"direction","sv":{"direction":"Right"}},{"id":"SG0042","n":"Go Straight","l":"سيدها جاوو","v":1,"t":"TPL06","st":"direction","sv":{"direction":"Straight"}},{"id":"SG0043","n":"Gents Walkway Left","l":"مردو نو ححلوانو رسته (دابي طرف )","v":1,"t":"TPL05","st":"direction","sv":{"gender":"Gents","direction":"Left"}},{"id":"SG0044","n":"Gents Walkway Right","l":"مردو نو ححلوانو رسته (جمني طرف )","v":1,"t":"TPL05","st":"direction","sv":{"gender":"Gents","direction":"Right"}},{"id":"SG0045","n":"Gents Walkway Straight","l":"مردو نو ححلوانو رسته (سيدهو )","v":1,"t":"TPL05","st":"direction","sv":{"gender":"Gents","direction":"Straight"}},{"id":"SG0046","n":"Ladies Walkway Left","l":"بئيراو نو ححلوانو رسته (دابي طرف)","v":1,"t":"TPL05","st":"direction","sv":{"gender":"Ladies","direction":"Left"}},{"id":"SG0047","n":"Ladies Walkway Right","l":"بئيراو نو ححلوانو رسته (جمني طرف )","v":1,"t":"TPL05","st":"direction","sv":{"gender":"Ladies","direction":"Right"}},{"id":"SG0048","n":"Ladies Walkway Straight","l":"بئيراو نو ححلوانو رسته (سيدهو )","v":1,"t":"TPL05","st":"direction","sv":{"gender":"Ladies","direction":"Straight"}},{"id":"SG0049","n":"Way to Bike Parking Left","l":"بائيك ني ثثاركـنكك طرف جاوانو راسته (دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Bike Parking","direction":"Left"}},{"id":"SG0050","n":"Way to Bike Parking Right","l":"بائيك ني ثثاركـنكك طرف جاوانو راسته (جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Bike Parking","direction":"Right"}},{"id":"SG0051","n":"Way to Bike Parking Straight","l":"بائيك ني ثثاركـنكك طرف جاوانو راسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Bike Parking","direction":"Straight"}},{"id":"SG0052","n":"Way to Bus Parking Left","l":"بس ني ثثاركـنكك طرف جاوانو راسته (دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Bus Parking","direction":"Left"}},{"id":"SG0053","n":"Way to Bus Parking Right","l":"بس ني ثثاركـنكك طرف جاوانو راسته (جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Bus Parking","direction":"Right"}},{"id":"SG0054","n":"Way to Bus Parking Straight","l":"بس ني ثثاركـنكك طرف جاوانو راسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Bus Parking","direction":"Straight"}},{"id":"SG0055","n":"Way to Car Parking Left","l":"ككاريو ني ثثاركـنكك طرف جاوانو راسته ( دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Car Parking","direction":"Left"}},{"id":"SG0056","n":"Way to Car Parking Right","l":"ككاريو ني ثثاركـنكك طرف جاوانو راسته ( جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Car Parking","direction":"Right"}},{"id":"SG0057","n":"Way to Car Parking Straight","l":"ككاريو ني ثثاركـنكك طرف جاوانو راسته ( سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Car Parking","direction":"Straight"}},{"id":"SG0058","n":"Way to Dustbins Left","l":"كححرا ني ثثيضضي جاوانو راسته (دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Dustbins","direction":"Left"}},{"id":"SG0059","n":"Way to Dustbins Right","l":"كححرا ني ثثيضضي جاوانو راسته (جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Dustbins","direction":"Right"}},{"id":"SG0060","n":"Way to Dustbins Straight","l":"كححرا ني ثثيضضي جاوانو راسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Dustbins","direction":"Straight"}},{"id":"SG0061","n":"Way to Entry Left","l":"باهر نكلوانو راسته دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Entry","direction":"Left"}},{"id":"SG0062","n":"Way to Entry Right","l":"اندر جاوانو راسته (جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Entry","direction":"Right"}},{"id":"SG0063","n":"Way to Entry Straight","l":"اندر جاوانو راسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Entry","direction":"Straight"}},{"id":"SG0064","n":"Way to Exit Left","l":"باهر نكلوانو راسته دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Exit","direction":"Left"}},{"id":"SG0065","n":"Way to Exit Right","l":"باهر نكلوانو راسته (جمني طرف)","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Exit","direction":"Right"}},{"id":"SG0066","n":"Way to Exit Straight","l":"باهر نكلوانو راسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Exit","direction":"Straight"}},{"id":"SG0067","n":"Way to Gents Mawaid Left","l":"مردو نا موائد جاوانو  راسته (جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Gents Mawaid","direction":"Left"}},{"id":"SG0068","n":"Way to Gents Mawaid Right","l":"مردو نا موائد جاوانو  راسته (دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Gents Mawaid","direction":"Right"}},{"id":"SG0069","n":"Way to Gents Mawaid Straight","l":"مردو نا موائد جاوانو  راسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Gents Mawaid","direction":"Straight"}},{"id":"SG0070","n":"Way to Masjid Left","l":"مسجد جاوانو راسته (دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Masjid","direction":"Left"}},{"id":"SG0071","n":"Way to Masjid Right","l":"مسجد جاوانو راسته (جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Masjid","direction":"Right"}},{"id":"SG0072","n":"Way to Masjid Straight","l":"مسجد جاوانو راسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Masjid","direction":"Straight"}},{"id":"SG0073","n":"Way to Mawaid Left","l":"موائد جاوانو  راسته (دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Mawaid","direction":"Left"}},{"id":"SG0074","n":"Way to Mawaid Right","l":"موائد جاوانو  راسته (جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Mawaid","direction":"Right"}},{"id":"SG0075","n":"Way to Mawaid Straight","l":"موائد جاوانو  راسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Mawaid","direction":"Straight"}},{"id":"SG0076","n":"Way to Rahat Left","l":"راحت طرف جاوانو راسته (جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Rahat","direction":"Left"}},{"id":"SG0077","n":"Way to Rahat Right","l":"راحت طرف جاوانو راسته (دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Rahat","direction":"Right"}},{"id":"SG0078","n":"Way to Rahat Straight","l":"راحت طرف جاوانو راسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Rahat","direction":"Straight"}},{"id":"SG0079","n":"Way to Sabeel Left","l":"سبيل جاوانو رسته دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Sabeel","direction":"Left"}},{"id":"SG0080","n":"Way to Sabeel Right","l":"سبيل جاوانو رسته (جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Sabeel","direction":"Right"}},{"id":"SG0081","n":"Way to Sabeel Straight","l":"سبيل جاوانو رسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Sabeel","direction":"Straight"}},{"id":"SG0082","n":"Way to Scanning point Left","l":"اسكيننكك طرف جاوانو راسته (دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Scanning point","direction":"Left"}},{"id":"SG0083","n":"Way to Scanning point Right","l":"اسكيننكك طرف جاوانو راسته (جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Scanning point","direction":"Right"}},{"id":"SG0084","n":"Way to Scanning point Straight","l":"اسكيننكك طرف جاوانو راسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Scanning point","direction":"Straight"}},{"id":"SG0085","n":"Way to Toilet Left","l":"بيت الخلاء- انككوليا جاوانو راسته (دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Toilet","direction":"Left"}},{"id":"SG0086","n":"Way to Toilet Right","l":"بيت الخلاء- انككوليا جاوانو راسته (جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Toilet","direction":"Right"}},{"id":"SG0087","n":"Way to Toilet Straight","l":"بيت الخلاء- انككوليا جاوانو راسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"Toilet","direction":"Straight"}},{"id":"SG0088","n":"Way to staircase Left","l":"سيرٌهي طرف جاوانو راسته (دابي طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"staircase","direction":"Left"}},{"id":"SG0089","n":"Way to staircase Right","l":"سيرٌهي طرف جاوانو راسته (جمني طرف )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"staircase","direction":"Right"}},{"id":"SG0090","n":"Way to staircase Straight","l":"سيرٌهي طرف جاوانو راسته (سيدهو )","v":1,"t":"TPL01","st":"direction","sv":{"destination":"staircase","direction":"Straight"}},{"id":"SG0091","n":"450m Ahead to Masjid","l":"مسجد طرف فاصله 450 ميضضر","v":0,"t":null,"st":"place"},{"id":"SG0092","n":"Authorized personnel only","l":"مخصوص رزا سي","v":0,"t":null,"st":"prohibition"},{"id":"SG0093","n":"Bait E Zaini Mawaid","l":"موائد (بيت زيني )","v":0,"t":null,"st":"place"},{"id":"SG0094","n":"Bike Parking","l":"بائيك ني ثثاركـنكك","v":0,"t":null,"st":"place"},{"id":"SG0095","n":"Bus Adam Mohallah","l":"بس - ( اْدم محلة )","v":0,"t":null,"st":"place"},{"id":"SG0096","n":"Bus Drop Off","l":"بس نا ركواني جككه","v":0,"t":null,"st":"place"},{"id":"SG0097","n":"Bus Entry","l":"بس نا داخل تهاواني جككه","v":0,"t":null,"st":"place"},{"id":"SG0098","n":"Bus Parking","l":"بس ني ثثاركـنكك","v":0,"t":null,"st":"place"},{"id":"SG0099","n":"Bus Stop","l":"بس اسضضاثث","v":0,"t":null,"st":"place"},{"id":"SG0100","n":"Car Parking","l":"ككاريو ني ثثاركـنكك","v":0,"t":null,"st":"place"},{"id":"SG0101","n":"Central Control Room","l":"سينضضرل كنضضرول روم","v":0,"t":null,"st":"place"},{"id":"SG0102","n":"Cooking Area","l":"ثثكاواني جككه","v":0,"t":null,"st":"place"},{"id":"SG0103","n":"Courtyard","l":"صحن","v":0,"t":null,"st":"place"},{"id":"SG0104","n":"Danger","l":"خطره","v":0,"t":null,"st":"warning"},{"id":"SG0105","n":"Doctor Here","l":"داكـضضرز","v":0,"t":null,"st":"place"},{"id":"SG0106","n":"Don’t Throw Trash anywhere, use Bins near you","l":"كححرا نسس اْم تيم نه ثثهينكيئسس،كححرا ني ثثيضضي ما كححرو ناكهيئسس","v":0,"t":null,"st":"prohibition"},{"id":"SG0107","n":"Don’t use cellphones","l":"موبائل فون استعمال نه كريئسس","v":0,"t":null,"st":"prohibition"},{"id":"SG0108","n":"Dustbins","l":"كححرا ني ثثيضضي","v":0,"t":null,"st":"place"},{"id":"SG0109","n":"Entry","l":"اندر جاوانو  ،داخل تهاوانو","v":0,"t":null,"st":"place"},{"id":"SG0110","n":"Exit","l":"باهر نكلوو","v":0,"t":null,"st":"place"},{"id":"SG0111","n":"First Aid Kiosk","l":"فرسضض ايدٌ","v":0,"t":null,"st":"safe_condition"},{"id":"SG0112","n":"Gents Doctor","l":"داكـضضر (مردو )","v":0,"t":null,"st":"place"},{"id":"SG0113","n":"Gents Entry","l":"مردو يظظاطط سي داخل تهائي","v":0,"t":null,"st":"place"},{"id":"SG0114","n":"Gents Mawaid","l":"موائد (مردو )","v":0,"t":null,"st":"place"},{"id":"SG0115","n":"Gents Sehen","l":"صحن (مردو )","v":0,"t":null,"st":"place"},{"id":"SG0116","n":"Gents Toilet","l":"بيت الخلاء - انككو ليا (مردو )","v":0,"t":null,"st":"place"},{"id":"SG0117","n":"Hand Wash","l":"هاتهـ  دهوواني جككه","v":0,"t":null,"st":"mandatory"},{"id":"SG0118","n":"Help Desk","l":"مساعدة - هيلثث ديسك","v":0,"t":null,"st":"place"},{"id":"SG0119","n":"IT room Authorized Personnel only","l":"اْئي ضضي روم - مخصوص اشخاص","v":0,"t":null,"st":"prohibition"},{"id":"SG0120","n":"Istibasaar Sessions","l":"استبصار","v":0,"t":null,"st":"place"},{"id":"SG0121","n":"Keep Silence","l":"خاموشي راكهيئسس","v":0,"t":null,"st":"mandatory"},{"id":"SG0122","n":"Keep your ITS card in hand","l":"التعريف الشخصي كاردٌ نسس هاتهـ ما راكهوو","v":0,"t":null,"st":"mandatory"},{"id":"SG0123","n":"Kitchen","l":"كيححن","v":0,"t":null,"st":"place"},{"id":"SG0124","n":"Kothar Mawaid","l":"موائد (كوتهار مبارك )","v":0,"t":null,"st":"place"},{"id":"SG0125","n":"Ladies Doctor","l":"داكـضضر (بئيرو )","v":0,"t":null,"st":"place"},{"id":"SG0126","n":"Ladies Entry","l":"بئيراؤ يظظاطط سي داخل تهائي","v":0,"t":null,"st":"place"},{"id":"SG0127","n":"Ladies First Floor","l":"ثثظظلو  فلور   (بئيراؤ )","v":0,"t":null,"st":"place"},{"id":"SG0128","n":"Ladies Mawaid","l":"موائد (بئيراؤ )","v":0,"t":null,"st":"place"},{"id":"SG0129","n":"Ladies Second Floor","l":"بيجو  فلور   (بئيراؤ )","v":0,"t":null,"st":"place"},{"id":"SG0130","n":"Ladies Sehen","l":"صحن (بئيراؤ )","v":0,"t":null,"st":"place"},{"id":"SG0131","n":"Ladies Toilet","l":"بيت الخلاء - انككو ليا (بئيراؤ )","v":0,"t":null,"st":"place"},{"id":"SG0132","n":"Left Masjid","l":"مسجد (دابي طرف)","v":0,"t":null,"st":"direction"},{"id":"SG0133","n":"Left Periphery","l":"ثثيري فيري (دابي طرف)","v":0,"t":null,"st":"direction"},{"id":"SG0134","n":"Left Tutak","l":"ضضو ضضك (دابي طرف)","v":0,"t":null,"st":"direction"},{"id":"SG0135","n":"Lost & Found","l":"ككُم شده انسس حاصل شده ححيزو","v":0,"t":null,"st":"place"},{"id":"SG0136","n":"Masjid","l":"مسجد","v":0,"t":null,"st":"place"},{"id":"SG0137","n":"Meat wash Area","l":"ككوشت دهووا ني جككه","v":0,"t":null,"st":"place"},{"id":"SG0138","n":"Medical Waste","l":"كححرا داني","v":0,"t":null,"st":"safe_condition"},{"id":"SG0139","n":"Nazafat Office","l":"نظافة اْفس","v":0,"t":null,"st":"place"},{"id":"SG0140","n":"No Entry","l":"اندر جاوو منع ؛","v":0,"t":null,"st":"prohibition"},{"id":"SG0141","n":"No Photography/Videography","l":"تصوير انسس ودٌيو نه ليوو","v":0,"t":null,"st":"prohibition"},{"id":"SG0142","n":"No Sitting Zone","l":"يظظاطط بيضضهوو منع ؛","v":0,"t":null,"st":"prohibition"},{"id":"SG0143","n":"No Stopping","l":"يظظاطط نه ركيئسس ، ححلتا جئيسس","v":0,"t":null,"st":"prohibition"},{"id":"SG0144","n":"No Waiting","l":"انتظار نه كريئسس","v":0,"t":null,"st":"prohibition"},{"id":"SG0145","n":"No Zebra Crossing","l":"يظظاطط زيبرا كراسنكك نتهي","v":0,"t":null,"st":"prohibition"},{"id":"SG0146","n":"No entry without permission","l":"رزا بغير داخل تهاوو ممنوع ؛","v":0,"t":null,"st":"prohibition"},{"id":"SG0147","n":"Parking Entry","l":"ثثاركـنكك ما داخل تهاوانو","v":0,"t":null,"st":"place"},{"id":"SG0148","n":"Parking Exit","l":"ثثاركـنكك سي نكلوانو","v":0,"t":null,"st":"place"},{"id":"SG0149","n":"Pharmacy","l":"دوا ء خانه","v":0,"t":null,"st":"place"},{"id":"SG0150","n":"Qasar e Ali Mawaid","l":"موائد (قصر عالي )","v":0,"t":null,"st":"place"},{"id":"SG0151","n":"Qasar e Ali Parking","l":"قصر عالي ني ثثاركـنكك","v":0,"t":null,"st":"place"},{"id":"SG0152","n":"Rahat Drop Off","l":"راحت نا ركواني جككه","v":0,"t":null,"st":"place"},{"id":"SG0153","n":"Rahat Entry","l":"راحت جاوانو راسته","v":0,"t":null,"st":"place"},{"id":"SG0154","n":"Rahat Exit","l":"راحت نكلوانو راسته","v":0,"t":null,"st":"place"},{"id":"SG0155","n":"Rahat Gents","l":"ر احة (بئيراؤ )","v":0,"t":null,"st":"place"},{"id":"SG0156","n":"Rahat Ladies","l":"ر احة (مردو )","v":0,"t":null,"st":"place"},{"id":"SG0157","n":"Rahat Washrooms","l":"راحة بلوك - بيت الخلاء -انككوليا","v":0,"t":null,"st":"place"},{"id":"SG0158","n":"Reduce Speed","l":"رفتار كم كريئسس","v":0,"t":null,"st":"mandatory"},{"id":"SG0159","n":"Refreshment Counter","l":"ريفريشمينضض","v":0,"t":null,"st":"place"},{"id":"SG0160","n":"Remove Chakhri Here","l":"يظظاطط ححاكهرٌي اتاريئسس","v":0,"t":null,"st":"mandatory"},{"id":"SG0161","n":"Reserved Parking","l":"مخصوص ثثاركـنكك","v":0,"t":null,"st":"place"},{"id":"SG0162","n":"Restricted Area","l":"اْ جككه ما جاوو منع ؛","v":0,"t":null,"st":"prohibition"},{"id":"SG0163","n":"Restricted Entry","l":"جه نسس رزا ؛ يه} داخل تهائسس","v":0,"t":null,"st":"prohibition"},{"id":"SG0164","n":"Rickshaw Waiting Zone","l":"ركشه نا انتظار ني جككه","v":0,"t":null,"st":"place"},{"id":"SG0165","n":"Right Masjid","l":"مسجد (جمني طرف)","v":0,"t":null,"st":"direction"},{"id":"SG0166","n":"Right Periphery","l":"ثثيري فيري (جمني طرف)","v":0,"t":null,"st":"direction"},{"id":"SG0167","n":"Right Tutak","l":"ضضو ضضك (جمني طرف)","v":0,"t":null,"st":"direction"},{"id":"SG0168","n":"Sabeel","l":"سبيل","v":0,"t":null,"st":"place"},{"id":"SG0169","n":"Scanning Point","l":"اسكيننكك ثثوئنضض","v":0,"t":null,"st":"place"},{"id":"SG0170","n":"Scanning here","l":"يظظاطط اسكين كراويئسس","v":0,"t":null,"st":"place"},{"id":"SG0171","n":"Shoes here","l":"يظظاطط جوتا اتاريئسس","v":0,"t":null,"st":"mandatory"},{"id":"SG0172","n":"Speed Limit 20KM","l":"رفتار  ني حد 20 كم","v":0,"t":null,"st":"mandatory"},{"id":"SG0173","n":"Staircase","l":"سيرٌهي","v":0,"t":null,"st":"place"},{"id":"SG0174","n":"Stay Away High Voltage","l":"خبردار- اْككسس خطره ؛","v":0,"t":null,"st":"warning"},{"id":"SG0175","n":"Stay Hydrated","l":"ثثاني ثثيتا رهوو","v":0,"t":null,"st":"mandatory"},{"id":"SG0176","n":"Store Room","l":"اسضضور روم","v":0,"t":null,"st":"place"},{"id":"SG0177","n":"Stretcher","l":"اسضضريـححـر","v":0,"t":null,"st":"safe_condition"},{"id":"SG0178","n":"Toilet","l":"بيت الخلاء - انككو ليا","v":0,"t":null,"st":"place"},{"id":"SG0179","n":"VIP Parking","l":"وي اْئي ثثي ني ثثاركـنكك","v":0,"t":null,"st":"place"},{"id":"SG0180","n":"Washrooms Etiquettes","l":"بيت الخلاء ني اْداب","v":0,"t":null,"st":"notice"},{"id":"SG0181","n":"Water Refill","l":"ثثاني بهروا ني جككه","v":0,"t":null,"st":"place"},{"id":"SG0182","n":"Way to Left","l":"راسته (دابي طرف )","v":0,"t":null,"st":"direction"},{"id":"SG0183","n":"Way to Right","l":"راسته (جمني طرف )","v":0,"t":null,"st":"direction"},{"id":"SG0184","n":"Way to Straight","l":"راسته (سيدهو )","v":0,"t":null,"st":"direction"},{"id":"SG0185","n":"WheelChair Access","l":"وهيل ححيئر جاوانو راسته","v":0,"t":null,"st":"direction"},{"id":"SG0186","n":"Wheelchair (for Emergency)","l":"وهيل ححيئر (ايمر جنسي )","v":0,"t":null,"st":"safe_condition"},{"id":"SG0187","n":"Zebra Crossing Ahead","l":"اْككسس زيبرا كراسنكك ؛","v":0,"t":null,"st":"warning"}],"usages":[{"id":"U0001","s":"SG0184","d":"D002","sz":"SZ006","q":70,"st":"printing"},{"id":"U0002","s":"SG0183","d":"D002","sz":"SZ006","q":70,"st":"designing"},{"id":"U0003","s":"SG0182","d":"D002","sz":"SZ006","q":70,"st":"pending"},{"id":"U0004","s":"SG0144","d":"D025","sz":"SZ005","q":30,"st":"approved"},{"id":"U0005","s":"SG0140","d":"D025","sz":"SZ005","q":30,"st":"ready"},{"id":"U0006","s":"SG0143","d":"D025","sz":"SZ005","q":30,"st":"ready"},{"id":"U0007","s":"SG0163","d":"D018","sz":"SZ005","q":20,"st":"approved"},{"id":"U0008","s":"SG0066","d":"D027","sz":"SZ006","q":70,"st":"ready"},{"id":"U0009","s":"SG0065","d":"D027","sz":"SZ006","q":70,"st":"approved"},{"id":"U0010","s":"SG0064","d":"D027","sz":"SZ006","q":70,"st":"ready"},{"id":"U0011","s":"SG0153","d":"D019","sz":"SZ005","q":10,"st":"approved"},{"id":"U0012","s":"SG0154","d":"D019","sz":"SZ005","q":10,"st":"approved"},{"id":"U0013","s":"SG0110","d":"D027","sz":"SZ005","q":30,"st":"ready"},{"id":"U0014","s":"SG0066","d":"D027","sz":"SZ006","q":70,"st":"pending"},{"id":"U0015","s":"SG0065","d":"D027","sz":"SZ006","q":70,"st":"approved"},{"id":"U0016","s":"SG0061","d":"D027","sz":"SZ006","q":70,"st":"designing"},{"id":"U0017","s":"SG0109","d":"D027","sz":"SZ006","q":20,"st":"pending"},{"id":"U0018","s":"SG0063","d":"D027","sz":"SZ006","q":70,"st":"pending"},{"id":"U0019","s":"SG0062","d":"D027","sz":"SZ006","q":70,"st":"rejected","rn":"Use existing template instead of new design"},{"id":"U0020","s":"SG0061","d":"D027","sz":"SZ006","q":70,"st":"approved"},{"id":"U0021","s":"SG0168","d":"D027","sz":"SZ006","q":50,"st":"designing"},{"id":"U0022","s":"SG0081","d":"D027","sz":"SZ005","q":70,"st":"rejected","rn":"Quantity seems high — please justify"},{"id":"U0023","s":"SG0080","d":"D027","sz":"SZ005","q":70,"st":"printing"},{"id":"U0024","s":"SG0079","d":"D027","sz":"SZ006","q":70,"st":"approved"},{"id":"U0025","s":"SG0048","d":"D002","sz":"SZ006","q":25,"st":"approved"},{"id":"U0026","s":"SG0047","d":"D002","sz":"SZ006","q":25,"st":"printing"},{"id":"U0027","s":"SG0046","d":"D002","sz":"SZ006","q":25,"st":"pending"},{"id":"U0028","s":"SG0045","d":"D002","sz":"SZ006","q":25,"st":"designing"},{"id":"U0029","s":"SG0044","d":"D002","sz":"SZ006","q":25,"st":"cancelled"},{"id":"U0030","s":"SG0043","d":"D002","sz":"SZ006","q":25,"st":"pending"},{"id":"U0031","s":"SG0185","d":"D002","sz":"SZ006","q":20,"st":"ready"},{"id":"U0032","s":"SG0114","d":"D027","sz":"SZ006","q":30,"st":"ready"},{"id":"U0033","s":"SG0128","d":"D027","sz":"SZ006","q":30,"st":"approved"},{"id":"U0034","s":"SG0136","d":"D027","sz":"SZ006","q":75,"st":"approved"},{"id":"U0035","s":"SG0072","d":"D027","sz":"SZ006","q":75,"st":"designing"},{"id":"U0036","s":"SG0071","d":"D027","sz":"SZ006","q":75,"st":"pending"},{"id":"U0037","s":"SG0070","d":"D027","sz":"SZ006","q":75,"st":"ready"},{"id":"U0038","s":"SG0069","d":"D027","sz":"SZ006","q":70,"st":"printing"},{"id":"U0039","s":"SG0067","d":"D027","sz":"SZ006","q":70,"st":"cancelled"},{"id":"U0040","s":"SG0068","d":"D027","sz":"SZ006","q":70,"st":"ready"},{"id":"U0041","s":"SG0078","d":"D019","sz":"SZ006","q":30,"st":"printing"},{"id":"U0042","s":"SG0076","d":"D019","sz":"SZ006","q":30,"st":"pending"},{"id":"U0043","s":"SG0077","d":"D019","sz":"SZ006","q":30,"st":"pending"},{"id":"U0044","s":"SG0178","d":"D024","sz":"SZ006","q":10,"st":"designing"},{"id":"U0045","s":"SG0087","d":"D024","sz":"SZ006","q":10,"st":"rejected","rn":"Discuss material with vendor first"},{"id":"U0046","s":"SG0086","d":"D024","sz":"SZ006","q":10,"st":"ready"},{"id":"U0047","s":"SG0085","d":"D024","sz":"SZ006","q":10,"st":"printing"},{"id":"U0048","s":"SG0187","d":"D026","sz":"SZ002","q":100,"st":"ready"},{"id":"U0049","s":"SG0099","d":"D026","sz":"SZ002","q":50,"st":"pending"},{"id":"U0050","s":"SG0158","d":"D026","sz":"SZ002","q":50,"st":"approved"},{"id":"U0051","s":"SG0172","d":"D026","sz":"SZ002","q":25,"st":"ready"},{"id":"U0052","s":"SG0096","d":"D026","sz":"SZ003","q":20,"st":"designing"},{"id":"U0053","s":"SG0164","d":"D026","sz":"SZ001","q":20,"st":"printing"},{"id":"U0054","s":"SG0097","d":"D026","sz":"SZ003","q":10,"st":"pending"},{"id":"U0055","s":"SG0161","d":"D026","sz":"SZ001","q":10,"st":"ready"},{"id":"U0056","s":"SG0145","d":"D026","sz":"SZ002","q":10,"st":"pending"},{"id":"U0057","s":"SG0100","d":"D026","sz":"SZ003","q":20,"st":"approved"},{"id":"U0058","s":"SG0057","d":"D026","sz":"SZ002","q":75,"st":"rejected","rn":"Use existing template instead of new design"},{"id":"U0059","s":"SG0055","d":"D026","sz":"SZ002","q":75,"st":"printing"},{"id":"U0060","s":"SG0056","d":"D026","sz":"SZ002","q":75,"st":"ready"},{"id":"U0061","s":"SG0098","d":"D026","sz":"SZ003","q":20,"st":"ready"},{"id":"U0062","s":"SG0054","d":"D026","sz":"SZ002","q":75,"st":"pending"},{"id":"U0063","s":"SG0052","d":"D026","sz":"SZ002","q":75,"st":"approved"},{"id":"U0064","s":"SG0053","d":"D026","sz":"SZ002","q":75,"st":"approved"},{"id":"U0065","s":"SG0094","d":"D026","sz":"SZ001","q":20,"st":"printing"},{"id":"U0066","s":"SG0051","d":"D026","sz":"SZ002","q":75,"st":"pending"},{"id":"U0067","s":"SG0049","d":"D026","sz":"SZ002","q":75,"st":"approved"},{"id":"U0068","s":"SG0050","d":"D026","sz":"SZ002","q":75,"st":"pending"},{"id":"U0069","s":"SG0179","d":"D026","sz":"SZ001","q":20,"st":"printing"},{"id":"U0070","s":"SG0151","d":"D027","sz":"SZ001","q":20,"st":"rejected","rn":"Discuss material with vendor first"},{"id":"U0071","s":"SG0147","d":"D026","sz":"SZ001","q":20,"st":"pending"},{"id":"U0072","s":"SG0148","d":"D026","sz":"SZ001","q":20,"st":"printing"},{"id":"U0073","s":"SG0152","d":"D019","sz":"SZ003","q":20,"st":"ready"},{"id":"U0074","s":"SG0095","d":"D026","sz":"SZ001","q":2,"st":"pending"},{"id":"U0075","s":"SG0003","d":"D026","sz":"SZ001","q":2,"st":"approved"},{"id":"U0076","s":"SG0004","d":"D026","sz":"SZ001","q":2,"st":"ready"},{"id":"U0077","s":"SG0005","d":"D026","sz":"SZ001","q":2,"st":"designing"},{"id":"U0078","s":"SG0007","d":"D026","sz":"SZ001","q":2,"st":"approved"},{"id":"U0079","s":"SG0008","d":"D026","sz":"SZ001","q":2,"st":"approved"},{"id":"U0080","s":"SG0010","d":"D026","sz":"SZ001","q":2,"st":"pending"},{"id":"U0081","s":"SG0011","d":"D026","sz":"SZ001","q":2,"st":"approved"},{"id":"U0082","s":"SG0013","d":"D026","sz":"SZ001","q":2,"st":"designing"},{"id":"U0083","s":"SG0001","d":"D026","sz":"SZ001","q":2,"st":"ready"},{"id":"U0084","s":"SG0002","d":"D026","sz":"SZ001","q":2,"st":"pending"},{"id":"U0085","s":"SG0006","d":"D026","sz":"SZ001","q":2,"st":"approved"},{"id":"U0086","s":"SG0014","d":"D026","sz":"SZ001","q":2,"st":"ready"},{"id":"U0087","s":"SG0016","d":"D026","sz":"SZ001","q":2,"st":"ready"},{"id":"U0088","s":"SG0015","d":"D026","sz":"SZ001","q":2,"st":"pending"},{"id":"U0089","s":"SG0017","d":"D026","sz":"SZ001","q":2,"st":"pending"},{"id":"U0090","s":"SG0009","d":"D026","sz":"SZ001","q":2,"st":"pending"},{"id":"U0091","s":"SG0012","d":"D026","sz":"SZ001","q":2,"st":"printing"},{"id":"U0092","s":"SG0018","d":"D025","sz":"SZ004","q":4,"st":"ready"},{"id":"U0093","s":"SG0026","d":"D025","sz":"SZ004","q":4,"st":"ready"},{"id":"U0094","s":"SG0027","d":"D025","sz":"SZ004","q":4,"st":"pending"},{"id":"U0095","s":"SG0028","d":"D025","sz":"SZ004","q":4,"st":"pending"},{"id":"U0096","s":"SG0029","d":"D025","sz":"SZ004","q":4,"st":"designing"},{"id":"U0097","s":"SG0030","d":"D025","sz":"SZ004","q":4,"st":"designing"},{"id":"U0098","s":"SG0031","d":"D025","sz":"SZ004","q":4,"st":"designing"},{"id":"U0099","s":"SG0032","d":"D025","sz":"SZ004","q":4,"st":"designing"},{"id":"U0100","s":"SG0033","d":"D025","sz":"SZ004","q":4,"st":"ready"},{"id":"U0101","s":"SG0019","d":"D025","sz":"SZ004","q":4,"st":"cancelled"},{"id":"U0102","s":"SG0020","d":"D025","sz":"SZ004","q":4,"st":"printing"},{"id":"U0103","s":"SG0021","d":"D025","sz":"SZ004","q":4,"st":"approved"},{"id":"U0104","s":"SG0022","d":"D025","sz":"SZ004","q":4,"st":"ready"},{"id":"U0105","s":"SG0023","d":"D025","sz":"SZ004","q":4,"st":"ready"},{"id":"U0106","s":"SG0024","d":"D025","sz":"SZ004","q":4,"st":"rejected","rn":"Quantity seems high — please justify"},{"id":"U0107","s":"SG0025","d":"D025","sz":"SZ004","q":4,"st":"pending"},{"id":"U0108","s":"SG0075","d":"D027","sz":"SZ002","q":70,"st":"ready"},{"id":"U0109","s":"SG0074","d":"D027","sz":"SZ002","q":70,"st":"pending"},{"id":"U0110","s":"SG0073","d":"D027","sz":"SZ002","q":70,"st":"pending"},{"id":"U0111","s":"SG0039","d":"D025","sz":"SZ002","q":50,"st":"approved"},{"id":"U0112","s":"SG0091","d":"D027","sz":"SZ002","q":30,"st":"pending"},{"id":"U0113","s":"SG0042","d":"D002","sz":"SZ002","q":100,"st":"pending"},{"id":"U0114","s":"SG0040","d":"D002","sz":"SZ002","q":100,"st":"pending"},{"id":"U0115","s":"SG0041","d":"D002","sz":"SZ002","q":100,"st":"pending"},{"id":"U0116","s":"SG0038","d":"D025","sz":"SZ002","q":50,"st":"ready"},{"id":"U0117","s":"SG0035","d":"D025","sz":"SZ002","q":100,"st":"ready"},{"id":"U0118","s":"SG0034","d":"D025","sz":"SZ002","q":100,"st":"approved"},{"id":"U0119","s":"SG0037","d":"D025","sz":"SZ002","q":100,"st":"pending"},{"id":"U0120","s":"SG0036","d":"D025","sz":"SZ002","q":100,"st":"approved"},{"id":"U0121","s":"SG0103","d":"D025","sz":"SZ006","q":20,"st":"approved"},{"id":"U0122","s":"SG0133","d":"D006","sz":"SZ001","q":30,"st":"designing"},{"id":"U0123","s":"SG0166","d":"D006","sz":"SZ001","q":30,"st":"designing"},{"id":"U0124","s":"SG0165","d":"D027","sz":"SZ002","q":30,"st":"printing"},{"id":"U0125","s":"SG0132","d":"D027","sz":"SZ002","q":30,"st":"approved"},{"id":"U0126","s":"SG0167","d":"D025","sz":"SZ002","q":30,"st":"approved"},{"id":"U0127","s":"SG0134","d":"D025","sz":"SZ002","q":30,"st":"designing"},{"id":"U0128","s":"SG0127","d":"D019","sz":"SZ002","q":20,"st":"approved"},{"id":"U0129","s":"SG0129","d":"D019","sz":"SZ002","q":20,"st":"ready"},{"id":"U0130","s":"SG0130","d":"D025","sz":"SZ002","q":20,"st":"approved"},{"id":"U0131","s":"SG0115","d":"D025","sz":"SZ002","q":20,"st":"pending"},{"id":"U0132","s":"SG0149","d":"D015","sz":"SZ004","q":20,"st":"pending"},{"id":"U0133","s":"SG0105","d":"D015","sz":"SZ004","q":20,"st":"approved"},{"id":"U0134","s":"SG0111","d":"D015","sz":"SZ004","q":20,"st":"printing"},{"id":"U0135","s":"SG0177","d":"D015","sz":"SZ004","q":20,"st":"printing"},{"id":"U0136","s":"SG0186","d":"D015","sz":"SZ004","q":20,"st":"ready"},{"id":"U0137","s":"SG0125","d":"D015","sz":"SZ004","q":20,"st":"approved"},{"id":"U0138","s":"SG0176","d":"D006","sz":"SZ004","q":20,"st":"pending"},{"id":"U0139","s":"SG0138","d":"D015","sz":"SZ004","q":20,"st":"pending"},{"id":"U0140","s":"SG0112","d":"D015","sz":"SZ004","q":20,"st":"ready"},{"id":"U0141","s":"SG0174","d":"D020","sz":"SZ001","q":20,"st":"ready"},{"id":"U0142","s":"SG0178","d":"D024","sz":"SZ001","q":80,"st":"approved"},{"id":"U0143","s":"SG0087","d":"D024","sz":"SZ002","q":80,"st":"approved"},{"id":"U0144","s":"SG0086","d":"D024","sz":"SZ002","q":80,"st":"printing"},{"id":"U0145","s":"SG0085","d":"D024","sz":"SZ002","q":80,"st":"printing"},{"id":"U0146","s":"SG0106","d":"D024","sz":"SZ001","q":50,"st":"pending"},{"id":"U0147","s":"SG0108","d":"D024","sz":"SZ001","q":30,"st":"designing"},{"id":"U0148","s":"SG0060","d":"D024","sz":"SZ002","q":50,"st":"approved"},{"id":"U0149","s":"SG0059","d":"D024","sz":"SZ002","q":50,"st":"pending"},{"id":"U0150","s":"SG0058","d":"D024","sz":"SZ002","q":50,"st":"ready"},{"id":"U0151","s":"SG0160","d":"D024","sz":"SZ001","q":20,"st":"approved"},{"id":"U0152","s":"SG0180","d":"D024","sz":"SZ001","q":20,"st":"ready"},{"id":"U0153","s":"SG0173","d":"D002","sz":"SZ001","q":30,"st":"approved"},{"id":"U0154","s":"SG0090","d":"D002","sz":"SZ001","q":50,"st":"ready"},{"id":"U0155","s":"SG0089","d":"D002","sz":"SZ001","q":50,"st":"pending"},{"id":"U0156","s":"SG0088","d":"D002","sz":"SZ001","q":50,"st":"pending"},{"id":"U0157","s":"SG0141","d":"D014","sz":"SZ001","q":100,"st":"pending"},{"id":"U0158","s":"SG0142","d":"D025","sz":"SZ001","q":50,"st":"printing"},{"id":"U0159","s":"SG0126","d":"D002","sz":"SZ001","q":20,"st":"ready"},{"id":"U0160","s":"SG0113","d":"D002","sz":"SZ001","q":20,"st":"designing"},{"id":"U0161","s":"SG0104","d":"D020","sz":"SZ001","q":20,"st":"pending"},{"id":"U0162","s":"SG0117","d":"D024","sz":"SZ001","q":20,"st":"ready"},{"id":"U0163","s":"SG0175","d":"D023","sz":"SZ001","q":100,"st":"pending"},{"id":"U0164","s":"SG0116","d":"D024","sz":"SZ001","q":50,"st":"printing"},{"id":"U0165","s":"SG0183","d":"D002","sz":"SZ001","q":50,"st":"designing"},{"id":"U0166","s":"SG0182","d":"D002","sz":"SZ001","q":50,"st":"pending"},{"id":"U0167","s":"SG0131","d":"D024","sz":"SZ001","q":50,"st":"pending"},{"id":"U0168","s":"SG0183","d":"D002","sz":"SZ001","q":50,"st":"pending"},{"id":"U0169","s":"SG0182","d":"D002","sz":"SZ001","q":50,"st":"pending"},{"id":"U0170","s":"SG0139","d":"D024","sz":"SZ001","q":20,"st":"pending"},{"id":"U0171","s":"SG0157","d":"D019","sz":"SZ001","q":20,"st":"pending"},{"id":"U0172","s":"SG0122","d":"D018","sz":"SZ002","q":100,"st":"designing"},{"id":"U0173","s":"SG0181","d":"D024","sz":"SZ001","q":50,"st":"ready"},{"id":"U0174","s":"SG0092","d":"D018","sz":"SZ001","q":50,"st":"ready"},{"id":"U0175","s":"SG0162","d":"D018","sz":"SZ001","q":50,"st":"approved"},{"id":"U0176","s":"SG0163","d":"D018","sz":"SZ001","q":50,"st":"approved"},{"id":"U0177","s":"SG0171","d":"D024","sz":"SZ001","q":50,"st":"printing"},{"id":"U0178","s":"SG0169","d":"D018","sz":"SZ004","q":50,"st":"printing"},{"id":"U0179","s":"SG0084","d":"D018","sz":"SZ004","q":50,"st":"pending"},{"id":"U0180","s":"SG0083","d":"D018","sz":"SZ004","q":50,"st":"pending"},{"id":"U0181","s":"SG0082","d":"D018","sz":"SZ004","q":50,"st":"ready"},{"id":"U0182","s":"SG0170","d":"D018","sz":"SZ004","q":30,"st":"pending"},{"id":"U0183","s":"SG0121","d":"D003","sz":"SZ001","q":50,"st":"pending"},{"id":"U0184","s":"SG0107","d":"D014","sz":"SZ001","q":50,"st":"pending"},{"id":"U0185","s":"SG0146","d":"D018","sz":"SZ001","q":50,"st":"ready"},{"id":"U0186","s":"SG0101","d":"D006","sz":"SZ001","q":30,"st":"designing"},{"id":"U0187","s":"SG0135","d":"D023","sz":"SZ001","q":30,"st":"designing"},{"id":"U0188","s":"SG0120","d":"D014","sz":"SZ001","q":30,"st":"designing"},{"id":"U0189","s":"SG0119","d":"D018","sz":"SZ001","q":30,"st":"designing"},{"id":"U0190","s":"SG0156","d":"D019","sz":"SZ001","q":30,"st":"pending"},{"id":"U0191","s":"SG0155","d":"D019","sz":"SZ001","q":30,"st":"pending"},{"id":"U0192","s":"SG0118","d":"D023","sz":"SZ001","q":30,"st":"pending"},{"id":"U0193","s":"SG0159","d":"D023","sz":"SZ001","q":30,"st":"ready"},{"id":"U0194","s":"SG0123","d":"D027","sz":"SZ001","q":30,"st":"pending"},{"id":"U0195","s":"SG0102","d":"D027","sz":"SZ001","q":30,"st":"pending"},{"id":"U0196","s":"SG0137","d":"D027","sz":"SZ001","q":1,"st":"approved"},{"id":"U0197","s":"SG0093","d":"D027","sz":"SZ001","q":1,"st":"pending"},{"id":"U0198","s":"SG0124","d":"D027","sz":"SZ001","q":1,"st":"pending"},{"id":"U0199","s":"SG0150","d":"D027","sz":"SZ001","q":1,"st":"pending"}],"cur_event":"EV03"};
+
+// ===== STATE =====
+let activeView = 'hod';
+let activeRole = 'hod'; // hod, admin, designer, production, viewer
+let currentDept = 'D027'; // when admin: which dept they're viewing. Mawaid by default for demo.
+let hodDept = 'D027'; // when HOD: their permanent dept
+
+const TYPE_BY = Object.fromEntries(DATA.types.map(t => [t.n, t]));
+const STAGE_ORDER = ['pending','approved','designing','printing','ready'];
+const STAGE_LABEL = {pending:'Pending',approved:'Approved',designing:'Designing',printing:'Printing',ready:'Ready',rejected:'Rejected',cancelled:'Cancelled'};
+const ROLE_LABEL = {hod:'HOD', admin:'Admin', designer:'Designer', production:'Production', viewer:'Viewer'};
+const ROLE_INITIAL = {hod:'H', admin:'A', designer:'D', production:'P', viewer:'V'};
+
+// Selections per usage_id (across all depts, but only the active one is shown)
+const state = {
+  selections: {},      // usage_id -> {selected, qty, size_id}
+  newVariants: {},     // template_id -> [variants]
+  expandedQueue: new Set(),
+  brandColours: {direction:'#0F6E56', place:'#534AB7', notice:'#888780'},
+  libraryFilter: {q:'', type:'', group:''},
+  groupOpen: {variable:true, constant:true},
+  hodSearch: '',
+  hodTypeFilter: '',
+  reorderApplied: false,  // for the "reorder all" CTA
+};
+DATA.usages.forEach(u => {
+  state.selections[u.id] = {selected:false, qty:u.q, size_id:u.sz};
+});
+
+// Lookups
+const SIGN_BY_ID = Object.fromEntries(DATA.signs.map(s => [s.id, s]));
+const TPL_BY_ID  = Object.fromEntries(DATA.templates.map(t => [t.id, t]));
+const SIZE_BY_ID = Object.fromEntries(DATA.sizes.map(sz => [sz.id, sz]));
+const DEPT_BY_ID = Object.fromEntries(DATA.depts.map(d => [d.id, d]));
+const EVENT_BY_ID= Object.fromEntries(DATA.events.map(e => [e.id, e]));
+
+// ===== HELPERS =====
+const $ = (id) => document.getElementById(id);
+const esc = (s) => (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+const fmt = (n) => Number(n).toLocaleString();
+const mkEl = (tag, attrs={}, ...children) => {
+  const el = document.createElement(tag);
+  Object.entries(attrs).forEach(([k,v]) => {
+    if (v == null) return;
+    if (k === 'cls') el.className = v;
+    else if (k === 'html') el.innerHTML = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (k === 'style') el.setAttribute('style', v);
+    else el.setAttribute(k, v);
+  });
+  children.flat().forEach(c => {
+    if (c == null) return;
+    if (typeof c === 'string' || typeof c === 'number') el.appendChild(document.createTextNode(String(c)));
+    else el.appendChild(c);
+  });
+  return el;
+};
+
+function typeBadge(typeName){
+  const t = TYPE_BY[typeName];
+  return mkEl('span', {cls:`tbadge t-${typeName}`}, mkEl('span', {cls:'dot'}), t?.lbl || typeName);
+}
+function statusPill(status){
+  return mkEl('span', {cls:`spill s-${status}`}, STAGE_LABEL[status] || status);
+}
+function getDeptInScope(){
+  return activeRole === 'hod' ? hodDept : currentDept;
+}
+
+// ===== TOAST =====
+function toast(msg, kind='info', timeout=3500){
+  const id = 'toast_' + Date.now() + Math.random();
+  const el = mkEl('div', {cls:`toast ${kind}`, id},
+    mkEl('span', {}, msg),
+    mkEl('button', {cls:'x', onclick: () => $(id)?.remove()}, '\u00d7')
+  );
+  $('toasts').appendChild(el);
+  if (timeout) setTimeout(() => $(id)?.remove(), timeout);
+}
+
+// ===== SIDEBAR =====
+function renderSidebar(){
+  const sb = $('sidebar');
+  sb.innerHTML = '';
+
+  sb.appendChild(mkEl('div', {cls:'sb-brand'},
+    mkEl('div', {cls:'sb-logo'},
+      mkEl('div', {cls:'sb-logo-mark'}, 'AM'),
+      mkEl('div', {},
+        mkEl('div', {cls:'sb-logo-name'}, 'Signage System'),
+        mkEl('div', {cls:'sb-logo-sub'}, '1447 \u00b7 Chennai'),
+      )
+    )
+  ));
+
+  // Build menu based on role
+  const nav = mkEl('div', {cls:'sb-nav'});
+
+  if (activeRole === 'hod') {
+    nav.appendChild(mkEl('div', {cls:'sb-section'},
+      mkEl('div', {cls:'sb-section-h'}, 'My department'),
+      navItem('hod', 'Request signs', '\u2630'),
+      navItem('library', 'Browse library', '\u25A4'),
+    ));
+  } else if (activeRole === 'admin') {
+    const pendingCount = DATA.usages.filter(u => u.st === 'pending').length;
+    nav.appendChild(mkEl('div', {cls:'sb-section'},
+      mkEl('div', {cls:'sb-section-h'}, 'Govern'),
+      navItem('queue', 'Approval queue', '\u2713', pendingCount),
+      navItem('kanban', 'Pipeline board', '\u25A2'),
+      navItem('hod', 'View as HOD', '\u2630'),
+    ));
+    nav.appendChild(mkEl('div', {cls:'sb-section'},
+      mkEl('div', {cls:'sb-section-h'}, 'Library & ops'),
+      navItem('library', 'Sign library', '\u25A4', DATA.signs.length),
+      navItem('print', 'Print runs', '\u25A8'),
+      navItem('event', 'Event setup', '\u2731'),
+    ));
+  } else if (activeRole === 'designer') {
+    const designingCount = DATA.usages.filter(u => u.st === 'designing').length;
+    nav.appendChild(mkEl('div', {cls:'sb-section'},
+      mkEl('div', {cls:'sb-section-h'}, 'Design queue'),
+      navItem('kanban', 'Pipeline board', '\u25A2', designingCount),
+      navItem('library', 'Sign library', '\u25A4'),
+    ));
+  } else if (activeRole === 'production') {
+    const printingCount = DATA.usages.filter(u => u.st === 'printing').length;
+    nav.appendChild(mkEl('div', {cls:'sb-section'},
+      mkEl('div', {cls:'sb-section-h'}, 'Production'),
+      navItem('print', 'Print runs', '\u25A8', printingCount),
+      navItem('kanban', 'Pipeline board', '\u25A2'),
+    ));
+  } else { // viewer
+    nav.appendChild(mkEl('div', {cls:'sb-section'},
+      mkEl('div', {cls:'sb-section-h'}, 'Read-only'),
+      navItem('kanban', 'Pipeline board', '\u25A2'),
+      navItem('library', 'Sign library', '\u25A4'),
+      navItem('print', 'Print runs', '\u25A8'),
+    ));
+  }
+
+  sb.appendChild(nav);
+
+  // Role switcher (review purposes)
+  sb.appendChild(mkEl('div', {cls:'sb-role'},
+    mkEl('div', {cls:'sb-role-label'}, 'Switch role (for review)'),
+    (() => {
+      const sel = mkEl('select', {cls:'sb-role-select', onchange: e => {
+        activeRole = e.target.value;
+        // Pick a sensible default view for the role
+        if (activeRole === 'hod') activeView = 'hod';
+        else if (activeRole === 'admin') activeView = 'queue';
+        else if (activeRole === 'designer') activeView = 'kanban';
+        else if (activeRole === 'production') activeView = 'print';
+        else activeView = 'kanban';
+        render();
+      }});
+      ['hod','admin','designer','production','viewer'].forEach(r => {
+        const dept = r === 'hod' ? ' \u2014 ' + (DEPT_BY_ID[hodDept]?.n || '') : '';
+        const o = mkEl('option', {value:r}, ROLE_LABEL[r] + dept);
+        if (r === activeRole) o.selected = true;
+        sel.appendChild(o);
+      });
+      return sel;
+    })(),
+    mkEl('div', {cls:'sb-role-helper'},
+      activeRole === 'hod'   ? 'You see only your department.' :
+      activeRole === 'admin' ? 'You can switch between departments.' :
+      activeRole === 'designer' ? 'You see items needing design work.' :
+      activeRole === 'production' ? 'You see items at the print vendor.' :
+      'Read-only access to all data.'
+    ),
+  ));
+}
+function navItem(view, label, icon, count){
+  return mkEl('button', {
+    cls:'sb-item' + (activeView===view?' active':''),
+    onclick: () => { activeView = view; render(); }
+  },
+    mkEl('span', {cls:'sb-icon'}, icon),
+    mkEl('span', {style:'flex:1'}, label),
+    count != null ? mkEl('span', {cls:'count'}, String(count)) : null
+  );
+}
+
+// ===== ROLE BADGE =====
+function renderRoleBadge(){
+  const existing = document.querySelector('.role-badge');
+  if (existing) existing.remove();
+  const dept = activeRole === 'hod' ? DEPT_BY_ID[hodDept]?.n :
+               activeRole === 'admin' ? 'all depts' :
+               activeRole === 'designer' ? 'design queue' :
+               activeRole === 'production' ? 'production' : 'viewer';
+  document.body.appendChild(mkEl('div', {cls:`role-badge r-${activeRole}`},
+    mkEl('span', {cls:'dot'}, ROLE_INITIAL[activeRole]),
+    mkEl('span', {}, ROLE_LABEL[activeRole] + (dept ? ' \u00b7 ' + dept : '')),
+  ));
+}
+
+// ===== HOD DASHBOARD =====
+function renderHOD(){
+  const main = $('main');
+  main.innerHTML = '';
+
+  const dept = DEPT_BY_ID[getDeptInScope()];
+  const event = EVENT_BY_ID[DATA.cur_event];
+
+  // Header
+  main.appendChild(mkEl('div', {cls:'page-h'},
+    mkEl('div', {style:'flex:1'},
+      mkEl('h1', {}, dept ? `${dept.n} signage` : 'Signage'),
+      mkEl('div', {cls:'page-sub'},
+        `For ${event.lbl} \u00b7 ${dept?.hod || 'No HOD assigned'}`,
+      ),
+    ),
+  ));
+
+  // Admin: show dept switcher (visible only when admin viewing as HOD)
+  if (activeRole === 'admin' && activeView === 'hod') {
+    main.appendChild(mkEl('div', {cls:'dept-switcher'},
+      mkEl('span', {cls:'lbl'}, 'Viewing dept:'),
+      (() => {
+        const sel = mkEl('select', {onchange: e => { currentDept = e.target.value; renderHOD(); }});
+        DATA.depts.forEach(d => {
+          const usageCount = DATA.usages.filter(u => u.d === d.id).length;
+          const o = mkEl('option', {value:d.id}, `${d.n} (${usageCount})`);
+          if (d.id === currentDept) o.selected = true;
+          sel.appendChild(o);
+        });
+        return sel;
+      })(),
+      mkEl('span', {cls:'muted', style:'font-size:11px;margin-left:auto'}, 'Admin role only'),
+    ));
+  }
+
+  const deptUsages = DATA.usages.filter(u => u.d === getDeptInScope());
+
+  // EMPTY STATE: no signs from last year
+  if (deptUsages.length === 0) {
+    main.appendChild(mkEl('div', {cls:'card'},
+      mkEl('div', {cls:'empty-state'},
+        mkEl('div', {cls:'icon'}, '\u25A1'),
+        mkEl('h3', {}, `Welcome to ${dept.n}`),
+        mkEl('p', {},
+          'No signs were captured for this department from previous events. ' +
+          'Get started by adding the signs you need for ' + event.lbl + '.'
+        ),
+        mkEl('div', {cls:'actions'},
+          mkEl('button', {cls:'btn primary lg', onclick: () => toast('In production: opens the new-sign creation flow.', 'info')},
+            '+ Add your first sign'),
+        ),
+      ),
+    ));
+    return;
+  }
+
+  // HERO: Reorder everything CTA (the magic button)
+  const totalLast = deptUsages.reduce((s,u) => s+u.q, 0);
+  let selCount = 0, reqQty = 0;
+  Object.entries(state.selections).forEach(([id, s]) => {
+    const u = DATA.usages.find(x => x.id === id);
+    if (u && u.d === getDeptInScope() && s.selected) { selCount++; reqQty += s.qty; }
+  });
+  Object.values(state.newVariants).forEach(arr => arr.forEach(v => {
+    if (v.dept === getDeptInScope() && v.qty > 0) { selCount++; reqQty += v.qty; }
+  }));
+
+  if (!state.reorderApplied) {
+    main.appendChild(mkEl('div', {cls:'hero'},
+      mkEl('div', {cls:'hero-info'},
+        mkEl('h2', {}, '\u26A1 Quick start'),
+        mkEl('p', {},
+          `Last year ${dept.n} ordered ${deptUsages.length} different signs (${fmt(totalLast)} total prints). ` +
+          `Reorder everything in one click, then adjust as needed.`
+        ),
+      ),
+      mkEl('div', {cls:'hero-cta'},
+        mkEl('button', {cls:'btn lg', onclick: () => {
+          state.reorderApplied = true;
+          renderHOD();
+        }}, 'Start fresh \u2014 select manually'),
+        mkEl('button', {cls:'btn primary lg', onclick: () => {
+          // Tick everything from last year
+          deptUsages.forEach(u => state.selections[u.id].selected = true);
+          state.reorderApplied = true;
+          toast(`Pre-selected all ${deptUsages.length} signs from last year. Adjust quantities below.`, 'success');
+          renderHOD();
+        }}, `\u2713 Reorder all ${deptUsages.length} signs`),
+      ),
+    ));
+  } else if (selCount > 0) {
+    main.appendChild(mkEl('div', {cls:'banner success'},
+      mkEl('span', {cls:'icon'}, '\u2713'),
+      mkEl('span', {},
+        mkEl('b', {}, `${selCount} signs selected`),
+        mkEl('span', {style:'margin-left:6px'}, `\u00b7 ${fmt(reqQty)} prints \u00b7 ready to submit when done`),
+      ),
+      mkEl('div', {cls:'banner-actions'},
+        mkEl('button', {cls:'btn sm ghost', onclick: () => {
+          deptUsages.forEach(u => state.selections[u.id].selected = false);
+          state.reorderApplied = false;
+          renderHOD();
+        }}, 'Clear all'),
+      ),
+    ));
+  }
+
+  // Stats
+  main.appendChild(mkEl('div', {cls:'stats'},
+    statCard('Last year used', fmt(deptUsages.length), 'unique signs'),
+    statCard('Last year qty', fmt(totalLast), 'total prints'),
+    statCard('Selected', String(selCount), 'in your request'),
+    statCard('Request total', fmt(reqQty), 'prints this year', true),
+  ));
+
+  // Search + filter
+  const searchControls = mkEl('div', {cls:'controls'});
+  const searchWrap = mkEl('div', {cls:'search'});
+  const searchInput = mkEl('input', {type:'search', placeholder:'Search signs by name or Lisan-ud-Dawat...', value: state.hodSearch,
+    oninput: e => { state.hodSearch = e.target.value.toLowerCase(); renderHOD(); }
+  });
+  searchWrap.appendChild(searchInput);
+  searchControls.appendChild(searchWrap);
+
+  // Filter pills by sign type
+  const filterPills = mkEl('div', {cls:'filter-pills'});
+  filterPills.appendChild(mkEl('button', {
+    cls:'fp' + (state.hodTypeFilter === '' ? ' active' : ''),
+    onclick: () => { state.hodTypeFilter = ''; renderHOD(); }
+  }, 'All', mkEl('span', {cls:'count'}, deptUsages.length)));
+
+  const usagesByType = {};
+  deptUsages.forEach(u => {
+    const t = SIGN_BY_ID[u.s].st;
+    (usagesByType[t] = usagesByType[t] || []).push(u);
+  });
+
+  ['prohibition','warning','mandatory','safe_condition','direction','place','notice'].forEach(t => {
+    if (!usagesByType[t]) return;
+    filterPills.appendChild(mkEl('button', {
+      cls:'fp' + (state.hodTypeFilter === t ? ' active' : ''),
+      onclick: () => { state.hodTypeFilter = t; renderHOD(); }
+    }, TYPE_BY[t]?.lbl || t, mkEl('span', {cls:'count'}, usagesByType[t].length)));
+  });
+  searchControls.appendChild(filterPills);
+  main.appendChild(searchControls);
+
+  // Apply filters to deptUsages
+  let filtered = deptUsages;
+  if (state.hodSearch) {
+    filtered = filtered.filter(u => {
+      const s = SIGN_BY_ID[u.s];
+      return s.n.toLowerCase().includes(state.hodSearch) ||
+             (s.l||'').toLowerCase().includes(state.hodSearch);
+    });
+  }
+  if (state.hodTypeFilter) {
+    filtered = filtered.filter(u => SIGN_BY_ID[u.s].st === state.hodTypeFilter);
+  }
+
+  if (filtered.length === 0) {
+    main.appendChild(mkEl('div', {cls:'card'},
+      mkEl('div', {cls:'empty-state'},
+        mkEl('div', {cls:'icon'}, '\u25A1'),
+        mkEl('h3', {}, 'No signs match your filters'),
+        mkEl('p', {}, 'Try clearing search or selecting a different type.'),
+      ),
+    ));
+  } else {
+    // Group: variable / constant
+    const variable = filtered.filter(u => SIGN_BY_ID[u.s].v);
+    const constant = filtered.filter(u => !SIGN_BY_ID[u.s].v);
+    if (variable.length) main.appendChild(renderHODGroup('Variable signs', '\u2192 Reusable templates with fill-in-the-blank slots', variable, true));
+    if (constant.length) main.appendChild(renderHODGroup('Constant signs', '\u2192 One unique design per sign', constant, false));
+  }
+
+  // FOOTER
+  main.appendChild(mkEl('div', {cls:'footbar'},
+    mkEl('div', {cls:'foot-l', html:
+      selCount === 0 ?
+        '<i>Select signs above to begin your request</i>' :
+        `<b>${selCount}</b> signs selected \u00b7 <b>${fmt(reqQty)}</b> prints total`
+    }),
+    mkEl('div', {cls:'flex'},
+      mkEl('button', {cls:'btn sm', onclick: () => {
+        deptUsages.forEach(u => state.selections[u.id].selected = false);
+        state.reorderApplied = false;
+        toast('Selection cleared.', 'info');
+        renderHOD();
+      }}, 'Reset'),
+      mkEl('button', {cls:'btn ghost sm'}, 'Save draft'),
+      mkEl('button', {
+        cls:'btn primary lg',
+        disabled: selCount === 0 ? 'true' : null,
+        onclick: () => {
+          toast(`Submitted ${selCount} items / ${fmt(reqQty)} prints for approval. Admin will review.`, 'success');
+        }
+      }, 'Submit \u2192'),
+    )
+  ));
+}
+
+function statCard(label, val, sub, accent){
+  return mkEl('div', {cls:'stat' + (accent?' accent':'')},
+    mkEl('div', {cls:'lbl'}, label),
+    mkEl('div', {cls:'val'}, val),
+    mkEl('div', {cls:'sub'}, sub),
+  );
+}
+
+function renderHODGroup(title, subtitle, usages, isVariable){
+  const groupKey = isVariable ? 'variable' : 'constant';
+  const isOpen = state.groupOpen[groupKey];
+
+  // Group by sign type
+  const byType = {};
+  usages.forEach(u => {
+    const t = SIGN_BY_ID[u.s].st;
+    (byType[t] = byType[t] || []).push(u);
+  });
+  const ORDER = ['prohibition','warning','mandatory','safe_condition','direction','place','notice'];
+
+  const head = mkEl('div', {cls:'group-head', onclick: () => { state.groupOpen[groupKey] = !isOpen; renderHOD(); }},
+    mkEl('div', {},
+      mkEl('h3', {}, title),
+      mkEl('div', {cls:'meta'}, subtitle),
+    ),
+    mkEl('div', {cls:'right'},
+      mkEl('span', {cls:'muted', style:'font-size:12px'}, `${usages.length} variants`),
+      mkEl('span', {style:'font-size:14px;color:var(--muted)'}, isOpen ? '\u2303' : '\u2304'),
+    )
+  );
+
+  const body = mkEl('div', {cls:'group-body' + (isOpen?'':' hidden')});
+
+  ORDER.forEach(typeName => {
+    if (!byType[typeName]) return;
+    const sub = mkEl('div', {cls:'subgroup'});
+    sub.appendChild(mkEl('div', {cls:'subgroup-head'},
+      typeBadge(typeName),
+      mkEl('span', {cls:'lbl'}, TYPE_BY[typeName]?.lbl || typeName),
+      mkEl('div', {cls:'sub-actions'},
+        mkEl('button', {cls:'btn ghost sm', onclick: e => {
+          e.stopPropagation();
+          byType[typeName].forEach(u => state.selections[u.id].selected = true);
+          renderHOD();
+        }}, `Select all ${byType[typeName].length}`),
+      ),
+    ));
+
+    sub.appendChild(mkEl('div', {cls:'signrow head'},
+      mkEl('div'), mkEl('div', {}, 'Sign'),
+      mkEl('div', {cls:'y-cell'}, '1445 Dubai'),
+      mkEl('div', {cls:'y-cell'}, '1446 Karachi'),
+      mkEl('div', {cls:'y-cell'}, '1447 Chennai'),
+      mkEl('div', {}, 'Size'),
+      mkEl('div', {cls:'center'}, 'Qty'),
+    ));
+
+    byType[typeName].forEach(u => sub.appendChild(renderSignRow(u)));
+    body.appendChild(sub);
+  });
+
+  // Add variant section
+  if (isVariable) {
+    const tplIds = [...new Set(usages.map(u => SIGN_BY_ID[u.s].t))];
+    tplIds.forEach(tid => { if (tid) body.appendChild(renderAddVariableForm(tid)); });
+  } else {
+    body.appendChild(renderAddConstantForm());
+  }
+
+  return mkEl('div', {cls:'group'}, head, body);
+}
+
+function renderSignRow(usage){
+  const sign = SIGN_BY_ID[usage.s];
+  const sel = state.selections[usage.id];
+  const row = mkEl('div', {cls:'signrow' + (sel.selected?' selected':'')});
+  const cb = mkEl('input', {type:'checkbox',
+    onchange: e => { sel.selected = e.target.checked; row.classList.toggle('selected', sel.selected); render(); }
+  });
+  if (sel.selected) cb.checked = true;
+  row.appendChild(cb);
+
+  row.appendChild(mkEl('div', {cls:'nm'},
+    mkEl('div', {}, sign.n),
+    sign.l ? mkEl('div', {cls:'l'}, sign.l) : null,
+  ));
+
+  row.appendChild(mkEl('div', {cls:'y-cell'}, mkEl('span', {cls:'y-empty'}, 'no data')));
+  row.appendChild(mkEl('div', {cls:'y-cell'}, mkEl('span', {cls:'y-empty'}, 'no data')));
+  row.appendChild(mkEl('div', {cls:'y-cell'},
+    mkEl('b', {}, fmt(usage.q)),
+    mkEl('span', {style:'font-size:10px;color:var(--hint)'}, SIZE_BY_ID[usage.sz]?.l || '\u2014'),
+  ));
+
+  const sizeSel = mkEl('select', {onchange: e => { sel.size_id = e.target.value; }});
+  DATA.sizes.forEach(sz => {
+    const o = mkEl('option', {value:sz.id}, sz.l);
+    if (sz.id === sel.size_id) o.selected = true;
+    sizeSel.appendChild(o);
+  });
+  row.appendChild(sizeSel);
+
+  const qtyInput = mkEl('input', {type:'number', min:'0', value:String(sel.qty),
+    oninput: e => {
+      sel.qty = parseInt(e.target.value || 0, 10);
+      if (sel.qty > 0 && !sel.selected) {
+        sel.selected = true;
+        cb.checked = true;
+        row.classList.add('selected');
+      }
+    }
+  });
+  row.appendChild(qtyInput);
+  return row;
+}
+
+function renderAddVariableForm(templateId){
+  const tpl = TPL_BY_ID[templateId];
+  if (!tpl) return mkEl('div');
+
+  const knownValues = {};
+  tpl.schema.forEach(slot => { knownValues[slot.name] = new Set(); });
+  DATA.signs.forEach(s => {
+    if (s.t === templateId && s.sv) {
+      Object.entries(s.sv).forEach(([k, v]) => {
+        if (knownValues[k]) knownValues[k].add(v);
+      });
+    }
+  });
+
+  const det = mkEl('details', {cls:'add'});
+  det.appendChild(mkEl('summary', {}, `Add new "${tpl.name}" variant`));
+
+  const form = mkEl('div', {cls:'add-form'});
+  const slotInputs = {};
+  const fields = mkEl('div', {cls:'row1'});
+
+  tpl.schema.forEach(slot => {
+    const wrap = mkEl('div');
+    wrap.appendChild(mkEl('label', {}, slot.label));
+    if (slot.type === 'fixed') {
+      const sel = mkEl('select');
+      sel.appendChild(mkEl('option', {value:''}, `\u2014 pick ${slot.label.toLowerCase()} \u2014`));
+      slot.values.forEach(v => sel.appendChild(mkEl('option', {value:v}, v)));
+      slotInputs[slot.name] = sel;
+      wrap.appendChild(sel);
+    } else {
+      const inp = mkEl('input', {type:'text', placeholder:'Type or click chip below'});
+      slotInputs[slot.name] = inp;
+      wrap.appendChild(inp);
+      const chips = mkEl('div', {cls:'chip-row'});
+      [...knownValues[slot.name]].slice(0,12).forEach(v => {
+        chips.appendChild(mkEl('button', {cls:'chip', type:'button',
+          onclick: () => { inp.value = v; updatePreview(); }
+        }, v));
+      });
+      wrap.appendChild(chips);
+    }
+    fields.appendChild(wrap);
+  });
+
+  fields.appendChild(mkEl('div', {},
+    mkEl('label', {}, 'Quantity'),
+    mkEl('input', {type:'number', min:'1', value:'30', id:'avqty-'+templateId})
+  ));
+  fields.appendChild(mkEl('div', {},
+    mkEl('label', {}, 'Size'),
+    (() => {
+      const ss = mkEl('select', {id:'avsz-'+templateId});
+      DATA.sizes.forEach(sz => ss.appendChild(mkEl('option', {value:sz.id}, sz.l)));
+      return ss;
+    })()
+  ));
+  form.appendChild(fields);
+
+  const preview = mkEl('div', {cls:'preview'}, 'Preview will appear here\u2026');
+  form.appendChild(preview);
+  function updatePreview(){
+    let p = tpl.pattern, ok = true;
+    tpl.schema.forEach(slot => {
+      const v = slotInputs[slot.name].value.trim();
+      if (!v) ok = false;
+      p = p.replace('{'+slot.name+'}', v || '___');
+    });
+    preview.textContent = '\u2192 ' + p;
+    preview.className = 'preview ' + (ok?'ok':'');
+  }
+  Object.values(slotInputs).forEach(i => {
+    i.addEventListener('input', updatePreview);
+    i.addEventListener('change', updatePreview);
+  });
+
+  form.appendChild(mkEl('div', {cls:'actions'},
+    mkEl('button', {cls:'btn sm', onclick: () => det.open = false}, 'Cancel'),
+    mkEl('button', {cls:'btn primary sm', onclick: () => {
+      let p = tpl.pattern, ok = true, vals = {};
+      tpl.schema.forEach(slot => {
+        const v = slotInputs[slot.name].value.trim();
+        if (!v) ok = false;
+        p = p.replace('{'+slot.name+'}', v);
+        vals[slot.name] = v;
+      });
+      if (!ok){ preview.textContent = '\u2192 Please fill all template slots'; preview.className = 'preview err'; return; }
+      const qtyEl = $('avqty-'+templateId);
+      const szEl = $('avsz-'+templateId);
+      const v = {name:p, slots:vals, qty:parseInt(qtyEl.value||0,10), size_id:szEl.value, dept:getDeptInScope()};
+      if (!state.newVariants[templateId]) state.newVariants[templateId] = [];
+      state.newVariants[templateId].push(v);
+      toast(`Added "${p}" \u00d7 ${v.qty} to your request.`, 'success');
+      det.open = false;
+      renderHOD();
+    }}, 'Add to request'),
+  ));
+
+  det.appendChild(form);
+  return det;
+}
+
+function renderAddConstantForm(){
+  const det = mkEl('details', {cls:'add'});
+  det.appendChild(mkEl('summary', {}, 'Add new constant sign'));
+  const form = mkEl('div', {cls:'add-form'});
+  const fields = mkEl('div', {cls:'row1'});
+  const nameInp = mkEl('input', {type:'text', placeholder:'e.g. Pharmacy', id:'acname'});
+  fields.appendChild(mkEl('div',{},mkEl('label',{},'Name'),nameInp));
+  fields.appendChild(mkEl('div',{},mkEl('label',{},'Lisan-ud-Dawat'),mkEl('input',{type:'text', placeholder:'optional', id:'aclisan'})));
+  const typeSel = mkEl('select', {id:'actype'});
+  ['place','direction','prohibition','mandatory','warning','safe_condition','notice'].forEach(t => {
+    typeSel.appendChild(mkEl('option',{value:t},TYPE_BY[t]?.lbl || t));
+  });
+  fields.appendChild(mkEl('div',{},mkEl('label',{},'Sign type'),typeSel));
+  fields.appendChild(mkEl('div',{},mkEl('label',{},'Quantity'),mkEl('input',{type:'number',min:'1',value:'30',id:'acqty'})));
+  const szSel = mkEl('select', {id:'acsz'});
+  DATA.sizes.forEach(sz => szSel.appendChild(mkEl('option',{value:sz.id},sz.l)));
+  fields.appendChild(mkEl('div',{},mkEl('label',{},'Size'),szSel));
+  form.appendChild(fields);
+  form.appendChild(mkEl('div',{cls:'actions'},
+    mkEl('button',{cls:'btn sm', onclick: () => det.open = false}, 'Cancel'),
+    mkEl('button',{cls:'btn primary sm', onclick: () => {
+      const n = nameInp.value.trim();
+      if (!n){ toast('Sign name required', 'error'); return; }
+      toast(`Added "${n}" to request.`, 'success');
+      det.open = false;
+    }},'Add to request'),
+  ));
+  det.appendChild(form);
+  return det;
+}
+
+// ===== ADMIN APPROVAL QUEUE =====
+function renderQueue(){
+  const main = $('main');
+  main.innerHTML = '';
+
+  const pending = DATA.usages.filter(u => u.st === 'pending');
+  main.appendChild(mkEl('div', {cls:'page-h'},
+    mkEl('div', {style:'flex:1'},
+      mkEl('h1', {}, 'Approval queue'),
+      mkEl('div', {cls:'page-sub'},
+        `${pending.length} items awaiting approval across ${new Set(pending.map(u=>u.d)).size} departments`),
+    ),
+    mkEl('div', {cls:'page-actions'},
+      mkEl('button', {cls:'btn'}, 'Filter'),
+      mkEl('button', {cls:'btn'}, 'Export'),
+    )
+  ));
+
+  const counts = {};
+  DATA.usages.forEach(u => counts[u.st] = (counts[u.st]||0)+1);
+  main.appendChild(mkEl('div', {cls:'stats'},
+    statCard('Pending review', String(counts.pending||0), 'awaiting decision', true),
+    statCard('Approved', String(counts.approved||0), 'in pipeline'),
+    statCard('In design', String(counts.designing||0), 'being designed'),
+    statCard('Rejected', String(counts.rejected||0), 'with notes'),
+  ));
+
+  if (pending.length === 0) {
+    main.appendChild(mkEl('div', {cls:'card'},
+      mkEl('div', {cls:'empty-state'},
+        mkEl('div', {cls:'icon'}, '\u2713'),
+        mkEl('h3', {}, 'All caught up'),
+        mkEl('p', {}, 'No items pending approval. Check the pipeline board for items in production.'),
+      ),
+    ));
+    return;
+  }
+
+  // Group by department
+  const byDept = {};
+  pending.forEach(u => (byDept[u.d] = byDept[u.d] || []).push(u));
+
+  Object.entries(byDept).forEach(([deptId, items]) => {
+    const dept = DEPT_BY_ID[deptId];
+    const totalQty = items.reduce((s,u)=>s+u.q, 0);
+    const card = mkEl('div', {cls:'card'},
+      mkEl('div', {cls:'card-h'},
+        mkEl('div', {},
+          mkEl('h2', {}, dept.n),
+          mkEl('div', {cls:'muted', style:'font-size:13px;margin-top:2px'}, `${items.length} items \u00b7 ${fmt(totalQty)} prints requested`),
+        ),
+        mkEl('div', {cls:'flex'},
+          mkEl('button', {cls:'btn sm', onclick: () => {
+            items.forEach(it => state.expandedQueue.add(it.id));
+            renderQueue();
+          }}, 'Expand all'),
+          mkEl('button', {cls:'btn success sm', onclick: () => {
+            toast(`Approved all ${items.length} items from ${dept.n}.`, 'success');
+          }}, `\u2713 Approve all ${items.length}`),
+        ),
+      ),
+    );
+
+    card.appendChild(mkEl('div', {cls:'queue-row head'},
+      mkEl('div', {}, 'Sign'),
+      mkEl('div', {}, 'Type'),
+      mkEl('div', {cls:'right'}, 'Qty'),
+      mkEl('div', {}, 'Size'),
+      mkEl('div', {}, 'Status'),
+      mkEl('div', {}, 'Actions'),
+    ));
+
+    items.forEach(u => {
+      const sign = SIGN_BY_ID[u.s];
+      const isExp = state.expandedQueue.has(u.id);
+      card.appendChild(mkEl('div', {cls:'queue-row' + (isExp?' expanded':'')},
+        mkEl('div', {cls:'nm'},
+          mkEl('div', {}, sign.n),
+          sign.l ? mkEl('div', {cls:'l'}, sign.l) : null,
+        ),
+        typeBadge(sign.st),
+        mkEl('div', {cls:'right', style:'font-weight:500'}, fmt(u.q)),
+        mkEl('div', {cls:'muted', style:'font-size:12px'}, SIZE_BY_ID[u.sz]?.l || '\u2014'),
+        statusPill(u.st),
+        mkEl('div', {cls:'flex'},
+          mkEl('button', {cls:'btn success sm', onclick: () => {
+            toast('Approved.', 'success');
+          }}, '\u2713'),
+          mkEl('button', {cls:'btn sm', onclick: () => {
+            if (isExp) state.expandedQueue.delete(u.id); else state.expandedQueue.add(u.id);
+            renderQueue();
+          }}, isExp?'Hide':'\u00d7 Reject'),
+        ),
+      ));
+
+      if (isExp) {
+        card.appendChild(mkEl('div', {cls:'queue-detail'},
+          mkEl('div', {cls:'form-row'},
+            mkEl('label', {style:'font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:6px;font-weight:600'}, 'Rejection note (visible to HOD)'),
+            mkEl('textarea', {placeholder:'Explain why this is being rejected...'}),
+          ),
+          mkEl('div', {cls:'actions'},
+            mkEl('button', {cls:'btn danger sm', onclick: () => {
+              toast('Rejected with note. HOD will be notified.', 'success');
+              state.expandedQueue.delete(u.id);
+              renderQueue();
+            }}, 'Confirm reject'),
+            mkEl('button', {cls:'btn sm', onclick: () => {
+              state.expandedQueue.delete(u.id);
+              renderQueue();
+            }}, 'Cancel'),
+          ),
+        ));
+      }
+    });
+
+    main.appendChild(card);
+  });
+}
+
+// ===== KANBAN =====
+function renderKanban(){
+  const main = $('main');
+  main.innerHTML = '';
+
+  main.appendChild(mkEl('div', {cls:'page-h'},
+    mkEl('div', {style:'flex:1'},
+      mkEl('h1', {}, 'Production pipeline'),
+      mkEl('div', {cls:'page-sub'}, '1447 Chennai \u00b7 Click any card for details'),
+    ),
+    mkEl('div', {cls:'page-actions'},
+      mkEl('button', {cls:'btn'}, 'Filter by department'),
+      mkEl('button', {cls:'btn'}, 'Export'),
+    )
+  ));
+
+  const counts = Object.fromEntries(STAGE_ORDER.map(s => [s, 0]));
+  let rejected = 0, cancelled = 0;
+  DATA.usages.forEach(u => {
+    if (counts[u.st] !== undefined) counts[u.st]++;
+    if (u.st === 'rejected') rejected++;
+    if (u.st === 'cancelled') cancelled++;
+  });
+
+  const totalActive = Object.values(counts).reduce((a,b)=>a+b, 0);
+  main.appendChild(mkEl('div', {cls:'stats'},
+    statCard('Active items', String(totalActive), 'in pipeline', true),
+    statCard('Rejected', String(rejected), 'with notes'),
+    statCard('Cancelled', String(cancelled), 'closed'),
+    statCard('Completion', totalActive > 0 ? Math.round((counts.ready/totalActive)*100)+'%' : '0%', 'ready for collection'),
+  ));
+
+  const kanban = mkEl('div', {cls:'kanban'});
+  STAGE_ORDER.forEach(stage => {
+    const items = DATA.usages.filter(u => u.st === stage);
+    const col = mkEl('div', {cls:'kcol'});
+    col.appendChild(mkEl('div', {cls:'kcol-h'},
+      mkEl('h3', {}, STAGE_LABEL[stage]),
+      mkEl('span', {cls:'count'}, String(items.length)),
+    ));
+    const body = mkEl('div', {cls:'kcol-body'});
+    items.slice(0, 30).forEach(u => {
+      const sign = SIGN_BY_ID[u.s];
+      body.appendChild(mkEl('div', {cls:'kcard',
+        onclick: () => showSignDetail(u.s)
+      },
+        mkEl('div', {cls:'nm'}, sign.n),
+        mkEl('div', {cls:'meta'},
+          mkEl('span', {}, DEPT_BY_ID[u.d].n),
+          mkEl('span', {cls:'qty'}, '\u00d7' + u.q),
+        ),
+        typeBadge(sign.st),
+      ));
+    });
+    if (items.length > 30) {
+      body.appendChild(mkEl('div', {cls:'muted', style:'font-size:11px;text-align:center;padding:8px'},
+        `+ ${items.length - 30} more`));
+    }
+    col.appendChild(body);
+    kanban.appendChild(col);
+  });
+  main.appendChild(kanban);
+
+  if (rejected + cancelled > 0) {
+    const offCard = mkEl('div', {cls:'card', style:'margin-top:24px'});
+    offCard.appendChild(mkEl('h2', {style:'margin-bottom:6px'}, 'Off-path items'));
+    offCard.appendChild(mkEl('div', {cls:'muted', style:'font-size:13px;margin-bottom:14px'}, 'Items rejected by admin or cancelled by HOD'));
+    DATA.usages.filter(u => u.st === 'rejected' || u.st === 'cancelled').forEach(u => {
+      const sign = SIGN_BY_ID[u.s];
+      offCard.appendChild(mkEl('div', {cls:'queue-row'},
+        mkEl('div', {cls:'nm'}, sign.n),
+        typeBadge(sign.st),
+        mkEl('div', {cls:'right'}, fmt(u.q)),
+        mkEl('div', {cls:'muted'}, DEPT_BY_ID[u.d].n),
+        statusPill(u.st),
+        mkEl('div', {cls:'muted', style:'font-size:11px;font-style:italic'}, u.rn || '\u2014'),
+      ));
+    });
+    main.appendChild(offCard);
+  }
+}
+
+// ===== SIGN LIBRARY =====
+function renderLibrary(){
+  const main = $('main');
+  main.innerHTML = '';
+
+  main.appendChild(mkEl('div', {cls:'page-h'},
+    mkEl('div', {style:'flex:1'},
+      mkEl('h1', {}, 'Sign library'),
+      mkEl('div', {cls:'page-sub'},
+        `${DATA.signs.length} unique signs \u00b7 ${DATA.signs.filter(s=>s.v).length} variable across ${DATA.templates.length} templates \u00b7 ${DATA.signs.filter(s=>!s.v).length} constant`),
+    ),
+    mkEl('div', {cls:'page-actions'},
+      mkEl('button', {cls:'btn'}, 'Export'),
+      mkEl('button', {cls:'btn primary'}, '+ New sign'),
+    )
+  ));
+
+  // Search and filters
+  const ctrls = mkEl('div', {cls:'controls'});
+  const sw = mkEl('div', {cls:'search'});
+  sw.appendChild(mkEl('input', {type:'search', placeholder:'Search signs...', value:state.libraryFilter.q,
+    oninput: e => { state.libraryFilter.q = e.target.value.toLowerCase(); renderLibrary(); }
+  }));
+  ctrls.appendChild(sw);
+
+  const filterPills = mkEl('div', {cls:'filter-pills'});
+  filterPills.appendChild(mkEl('button', {
+    cls:'fp' + (state.libraryFilter.group === '' ? ' active' : ''),
+    onclick: () => { state.libraryFilter.group = ''; renderLibrary(); }
+  }, 'All', mkEl('span',{cls:'count'}, DATA.signs.length)));
+  filterPills.appendChild(mkEl('button', {
+    cls:'fp' + (state.libraryFilter.group === 'Variable' ? ' active' : ''),
+    onclick: () => { state.libraryFilter.group = 'Variable'; renderLibrary(); }
+  }, 'Variable', mkEl('span',{cls:'count'}, DATA.signs.filter(s=>s.v).length)));
+  filterPills.appendChild(mkEl('button', {
+    cls:'fp' + (state.libraryFilter.group === 'Constant' ? ' active' : ''),
+    onclick: () => { state.libraryFilter.group = 'Constant'; renderLibrary(); }
+  }, 'Constant', mkEl('span',{cls:'count'}, DATA.signs.filter(s=>!s.v).length)));
+  ctrls.appendChild(filterPills);
+
+  const typeFilters = mkEl('div', {cls:'filter-pills'});
+  typeFilters.appendChild(mkEl('button', {
+    cls:'fp' + (state.libraryFilter.type === '' ? ' active' : ''),
+    onclick: () => { state.libraryFilter.type = ''; renderLibrary(); }
+  }, 'All types'));
+  ['prohibition','warning','mandatory','safe_condition','direction','place','notice'].forEach(t => {
+    const count = DATA.signs.filter(s => s.st === t).length;
+    if (count === 0) return;
+    typeFilters.appendChild(mkEl('button', {
+      cls:'fp' + (state.libraryFilter.type === t ? ' active' : ''),
+      onclick: () => { state.libraryFilter.type = t; renderLibrary(); }
+    }, TYPE_BY[t]?.lbl, mkEl('span',{cls:'count'}, count)));
+  });
+  ctrls.appendChild(typeFilters);
+  main.appendChild(ctrls);
+
+  let filtered = DATA.signs.filter(s => {
+    if (state.libraryFilter.q) {
+      const q = state.libraryFilter.q;
+      if (!s.n.toLowerCase().includes(q) && !(s.l||'').toLowerCase().includes(q)) return false;
+    }
+    if (state.libraryFilter.type && s.st !== state.libraryFilter.type) return false;
+    if (state.libraryFilter.group === 'Variable' && !s.v) return false;
+    if (state.libraryFilter.group === 'Constant' && s.v) return false;
+    return true;
+  });
+
+  main.appendChild(mkEl('div', {cls:'muted', style:'font-size:13px;margin-bottom:14px'},
+    `Showing ${filtered.length} of ${DATA.signs.length} signs`));
+
+  if (filtered.length === 0) {
+    main.appendChild(mkEl('div', {cls:'card'},
+      mkEl('div', {cls:'empty-state'},
+        mkEl('div', {cls:'icon'}, '\u25A1'),
+        mkEl('h3', {}, 'No signs match your search'),
+        mkEl('p', {}, 'Try clearing filters or searching for a different term.'),
+      ),
+    ));
+    return;
+  }
+
+  const grid = mkEl('div', {cls:'lib-grid'});
+  filtered.slice(0, 80).forEach(s => {
+    const usageCount = DATA.usages.filter(u => u.s === s.id).length;
+    const totalQty = DATA.usages.filter(u => u.s === s.id).reduce((a,u)=>a+u.q,0);
+    grid.appendChild(mkEl('div', {cls:'lib-card', onclick: () => showSignDetail(s.id)},
+      mkEl('div', {style:'display:flex;justify-content:space-between;align-items:flex-start;gap:8px'},
+        mkEl('div', {style:'flex:1'},
+          mkEl('div', {cls:'nm'}, s.n),
+          s.l ? mkEl('div', {cls:'l'}, s.l) : mkEl('div', {cls:'l'}),
+        ),
+        s.v ? mkEl('span', {cls:'tbadge t-notice', style:'font-size:10px'}, 'Variable') : null,
+      ),
+      typeBadge(s.st),
+      mkEl('div', {cls:'footer'},
+        mkEl('span', {}, usageCount + (usageCount===1?' order':' orders')),
+        mkEl('span', {style:'font-weight:500;color:var(--text)'}, fmt(totalQty) + ' prints'),
+      ),
+    ));
+  });
+  if (filtered.length > 80) {
+    grid.appendChild(mkEl('div', {cls:'muted', style:'grid-column:1/-1;text-align:center;padding:14px'},
+      `+ ${filtered.length-80} more results \u2014 refine your search to see them.`));
+  }
+  main.appendChild(grid);
+}
+
+function showSignDetail(signId){
+  const sign = SIGN_BY_ID[signId];
+  const usages = DATA.usages.filter(u => u.s === signId);
+  const tpl = sign.t ? TPL_BY_ID[sign.t] : null;
+
+  const modal = $('modal');
+  modal.innerHTML = '';
+  modal.appendChild(mkEl('div', {cls:'modal-h'},
+    mkEl('div', {},
+      mkEl('h2', {}, sign.n),
+      sign.l ? mkEl('div', {style:'font-size:13px;color:var(--muted);direction:rtl;font-family:Arial,sans-serif;margin-top:4px'}, sign.l) : null,
+    ),
+    mkEl('button', {cls:'modal-x', onclick: closeModal}, '\u00d7'),
+  ));
+
+  const metas = mkEl('div', {style:'display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px'});
+  metas.appendChild(typeBadge(sign.st));
+  if (tpl) metas.appendChild(mkEl('span', {cls:'tbadge', style:'background:var(--info-bg);color:var(--info)'}, 'Variable: ' + tpl.name));
+  else metas.appendChild(mkEl('span', {cls:'tbadge t-notice'}, 'Constant'));
+  modal.appendChild(metas);
+
+  if (sign.sv) {
+    modal.appendChild(mkEl('div', {style:'background:var(--surface);padding:10px 14px;border-radius:8px;margin-bottom:14px'},
+      mkEl('div', {style:'font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;font-weight:600'}, 'Slot values'),
+      mkEl('div', {style:'font-family:monospace;font-size:13px'}, JSON.stringify(sign.sv)),
+    ));
+  }
+
+  modal.appendChild(mkEl('h3', {style:'margin-top:18px;margin-bottom:8px'}, 'Usage history'));
+  const tbl = mkEl('table', {cls:'history-table'});
+  tbl.appendChild(mkEl('thead', {}, mkEl('tr', {},
+    mkEl('th', {}, 'Event'), mkEl('th', {}, 'Department'),
+    mkEl('th', {}, 'Qty'), mkEl('th', {}, 'Size'), mkEl('th', {}, 'Status'),
+  )));
+  const tbody = mkEl('tbody');
+  usages.forEach(u => {
+    tbody.appendChild(mkEl('tr', {},
+      mkEl('td', {}, '1447 Chennai'),
+      mkEl('td', {}, DEPT_BY_ID[u.d].n),
+      mkEl('td', {style:'font-weight:500'}, fmt(u.q)),
+      mkEl('td', {cls:'muted'}, SIZE_BY_ID[u.sz]?.l || '\u2014'),
+      mkEl('td', {}, statusPill(u.st)),
+    ));
+  });
+  if (usages.length === 0) {
+    tbody.appendChild(mkEl('tr',{}, mkEl('td',{colspan:5, cls:'muted center'},'No usage records yet')));
+  }
+  tbl.appendChild(tbody);
+  modal.appendChild(tbl);
+
+  modal.appendChild(mkEl('div', {style:'background:var(--surface);padding:12px;border-radius:8px;margin-top:16px;font-size:12px;color:var(--muted)'},
+    '1445 Dubai and 1446 Karachi \u2014 no data captured'));
+
+  modal.appendChild(mkEl('div', {style:'display:flex;gap:8px;justify-content:flex-end;margin-top:18px'},
+    mkEl('button', {cls:'btn', onclick: closeModal}, 'Close'),
+    mkEl('button', {cls:'btn primary'}, 'Edit sign'),
+  ));
+
+  $('modal-bg').classList.add('open');
+}
+
+function closeModal(){ $('modal-bg').classList.remove('open'); }
+
+// ===== PRINT RUNS =====
+function renderPrint(){
+  const main = $('main');
+  main.innerHTML = '';
+
+  main.appendChild(mkEl('div', {cls:'page-h'},
+    mkEl('div', {style:'flex:1'},
+      mkEl('h1', {}, 'Print runs'),
+      mkEl('div', {cls:'page-sub'}, 'Approved items grouped by design \u2014 what goes to the print vendor'),
+    ),
+    mkEl('div', {cls:'page-actions'},
+      mkEl('button', {cls:'btn'}, 'Export brief PDF'),
+      mkEl('button', {cls:'btn primary'}, 'Send to vendor'),
+    )
+  ));
+
+  const approved = DATA.usages.filter(u => ['approved','designing','printing','ready'].includes(u.st));
+
+  const groups = {};
+  approved.forEach(u => {
+    const sign = SIGN_BY_ID[u.s];
+    const key = sign.t || 'atomic:'+sign.id;
+    if (!groups[key]) {
+      groups[key] = {
+        type: sign.t ? 'variable' : 'constant',
+        template_id: sign.t,
+        template_name: sign.t ? TPL_BY_ID[sign.t].name : null,
+        sign_type: sign.st,
+        atomic_sign: !sign.t ? sign : null,
+        usages: [],
+      };
+    }
+    groups[key].usages.push({u, sign});
+  });
+
+  const totalDesigns = Object.keys(groups).length;
+  const totalPrints = approved.reduce((a,u)=>a+u.q,0);
+  const variableDesigns = Object.values(groups).filter(g => g.type==='variable').length;
+  const constantDesigns = Object.values(groups).filter(g => g.type==='constant').length;
+  main.appendChild(mkEl('div', {cls:'stats'},
+    statCard('Total designs', String(totalDesigns), 'unique design files', true),
+    statCard('Variable templates', String(variableDesigns), 'with multiple variants'),
+    statCard('Constant designs', String(constantDesigns), '1 design = 1 sign'),
+    statCard('Total prints', fmt(totalPrints), 'units to produce'),
+  ));
+
+  if (Object.keys(groups).length === 0) {
+    main.appendChild(mkEl('div', {cls:'card'},
+      mkEl('div', {cls:'empty-state'},
+        mkEl('div', {cls:'icon'}, '\u25A1'),
+        mkEl('h3', {}, 'Nothing approved yet'),
+        mkEl('p', {}, 'Once admin approves items, they appear here grouped by design.'),
+      ),
+    ));
+    return;
+  }
+
+  const sortedGroups = Object.entries(groups).sort((a,b) => {
+    if (a[1].type !== b[1].type) return a[1].type==='variable'?-1:1;
+    return b[1].usages.length - a[1].usages.length;
+  });
+
+  sortedGroups.forEach(([key, g]) => {
+    const totalQ = g.usages.reduce((a,x)=>a+x.u.q, 0);
+    const card = mkEl('div', {cls:'print-card'});
+    card.appendChild(mkEl('div', {cls:'print-card-h'},
+      mkEl('div', {style:'flex:1;min-width:0'},
+        mkEl('h3', {style:'display:flex;align-items:center;gap:10px;flex-wrap:wrap'},
+          g.type === 'variable'
+            ? mkEl('span',{cls:'tbadge', style:'background:var(--info-bg);color:var(--info)'},'Variable template')
+            : mkEl('span',{cls:'tbadge t-notice'},'Constant design'),
+          mkEl('span', {}, g.template_name || g.atomic_sign.n),
+        ),
+        mkEl('div', {cls:'muted', style:'font-size:13px;margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap'},
+          typeBadge(g.sign_type),
+          mkEl('span', {style:'opacity:0.5'}, '\u00b7'),
+          mkEl('span', {}, `${g.usages.length} variant${g.usages.length===1?'':'s'} \u00b7 ${fmt(totalQ)} prints`),
+        ),
+      ),
+      mkEl('button', {cls:'btn sm'}, 'Download brief'),
+    ));
+
+    if (g.type === 'variable') {
+      const variants = mkEl('div', {cls:'print-variants'});
+      variants.appendChild(mkEl('div', {style:'font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;font-weight:600'},
+        'Variants to print'));
+      g.usages.forEach(({u, sign}) => {
+        variants.appendChild(mkEl('div', {cls:'pv'},
+          mkEl('span', {style:'flex:1;min-width:0'}, sign.n),
+          mkEl('span', {cls:'muted', style:'flex-shrink:0;text-align:right'},
+            DEPT_BY_ID[u.d].n + ' \u00b7 ' + (SIZE_BY_ID[u.sz]?.l || '\u2014') + ' \u00b7 ',
+            mkEl('span', {style:'font-weight:600;color:var(--text)'}, '\u00d7' + u.q),
+          ),
+        ));
+      });
+      card.appendChild(variants);
+    }
+    main.appendChild(card);
+  });
+}
+
+// ===== EVENT SETUP =====
+function renderEvent(){
+  const main = $('main');
+  main.innerHTML = '';
+
+  main.appendChild(mkEl('div', {cls:'page-h'},
+    mkEl('div', {style:'flex:1'},
+      mkEl('h1', {}, 'Event setup'),
+      mkEl('div', {cls:'page-sub'}, 'Configure event details, brand colours, and departments'),
+    ),
+    mkEl('div', {cls:'page-actions'},
+      mkEl('button', {cls:'btn primary'}, 'Save changes'),
+    )
+  ));
+
+  const tabs = mkEl('div', {cls:'tabs'});
+  DATA.events.forEach(e => {
+    tabs.appendChild(mkEl('button', {
+      cls:'tab' + (e.id === DATA.cur_event ? ' active' : ''),
+    }, e.lbl + (!e.has ? ' \u00b7 no data' : '')));
+  });
+  main.appendChild(tabs);
+
+  main.appendChild(mkEl('div', {cls:'card'},
+    mkEl('h2', {style:'margin-bottom:12px'}, 'Event details'),
+    mkEl('div', {style:'display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px'},
+      eventField('Hijri year', '1447'),
+      eventField('City', 'Chennai'),
+      eventField('Gregorian year', '2026'),
+    ),
+  ));
+
+  // Colour palette
+  main.appendChild(mkEl('div', {cls:'card'},
+    mkEl('h2', {style:'margin-bottom:6px'}, 'Sign type colour palette'),
+    mkEl('div', {cls:'muted', style:'font-size:13px;margin-bottom:18px'},
+      'Safety types follow ISO 7010 (locked). Brand types are derived from this event\u2019s logo \u2014 set them once the logo is finalised.'),
+    mkEl('h3', {style:'margin-top:14px;margin-bottom:8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;font-weight:600'},
+      '\u26A0 Safety colours \u2014 locked'),
+    colourRow('Prohibition', '#A32D2D', 'Red \u2014 forbids an action', true),
+    colourRow('Warning', '#BA7517', 'Yellow \u2014 warns of hazard', true),
+    colourRow('Mandatory', '#185FA5', 'Blue \u2014 requires action', true),
+    colourRow('Safe condition', '#3B6D11', 'Green \u2014 emergency / safe', true),
+    mkEl('h3', {style:'margin-top:24px;margin-bottom:8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;font-weight:600'},
+      '\u2731 Brand colours \u2014 set per event'),
+    colourRow('Direction', state.brandColours.direction, 'Directional / wayfinding signs', false, 'direction'),
+    colourRow('Place', state.brandColours.place, 'Place / room labels', false, 'place'),
+    colourRow('Notice', state.brandColours.notice, 'General information', false, 'notice'),
+  ));
+
+  const deptRows = mkEl('div', {});
+  DATA.depts.forEach(d => {
+    const usages = DATA.usages.filter(u => u.d === d.id).length;
+    deptRows.appendChild(mkEl('div', {style:'display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:14px'},
+      mkEl('div', {style:'flex:1;min-width:0'},
+        mkEl('div', {style:'font-weight:500'}, d.n),
+        d.hod ? mkEl('div', {cls:'muted', style:'font-size:12px'}, d.hod)
+              : mkEl('div', {cls:'muted', style:'font-size:12px;font-style:italic'}, 'No HOD assigned'),
+      ),
+      mkEl('div', {cls:'muted', style:'font-size:12px;flex-shrink:0'},
+        usages > 0 ? `${usages} signs` : mkEl('span', {style:'font-style:italic;color:var(--hint)'}, 'no signs yet')),
+    ));
+  });
+  main.appendChild(mkEl('div', {cls:'card'},
+    mkEl('h2', {style:'margin-bottom:12px'}, `Departments (${DATA.depts.length})`),
+    deptRows,
+  ));
+}
+
+function eventField(label, val){
+  return mkEl('div', {},
+    mkEl('label', {style:'font-size:11px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:5px;font-weight:600;letter-spacing:0.04em'}, label),
+    mkEl('input', {type:'text', value:val, style:'height:34px;padding:0 10px;border:1px solid var(--border-strong);border-radius:6px;width:100%;background:var(--card)'}),
+  );
+}
+
+function colourRow(label, hex, desc, locked, brandKey){
+  const swatch = mkEl('div', {cls:'colour-swatch' + (hex?'':' empty'), style: hex?`background:${hex}`:''});
+  const ipText = mkEl('input', {type:'text', value:hex||'', readonly: locked?'true':null});
+  const ipColor = mkEl('input', {type:'color', value:hex||'#888888'});
+  if (!locked && brandKey) {
+    ipColor.addEventListener('input', e => {
+      state.brandColours[brandKey] = e.target.value;
+      ipText.value = e.target.value;
+      swatch.style.background = e.target.value;
+      swatch.classList.remove('empty');
+    });
+  }
+  if (locked) ipColor.disabled = true;
+  return mkEl('div', {cls:'colour-picker'},
+    swatch,
+    mkEl('div', {cls:'colour-info'},
+      mkEl('div', {cls:'lbl'}, label + (locked?' \ud83d\udd12':'')),
+      mkEl('div', {cls:'desc'}, desc),
+      mkEl('div', {style:'margin-top:6px;display:flex;align-items:center;gap:6px'},
+        ipText, ipColor,
+      ),
+    ),
+  );
+}
+
+// ===== DISPATCHER =====
+function render(){
+  renderRoleBadge();
+  renderSidebar();
+  switch(activeView){
+    case 'hod': renderHOD(); break;
+    case 'queue': renderQueue(); break;
+    case 'kanban': renderKanban(); break;
+    case 'library': renderLibrary(); break;
+    case 'print': renderPrint(); break;
+    case 'event': renderEvent(); break;
+    default: renderHOD();
+  }
+  window.scrollTo(0, 0);
+}
+
+// Modal close
+$('modal-bg').addEventListener('click', e => {
+  if (e.target.id === 'modal-bg') closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+render();
+</script>
+</body>
+</html>

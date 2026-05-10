@@ -1,0 +1,244 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Kanz al-Marjaan';
+  src: url('/fonts/Kanz-al-Marjaan.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+  /* Match fallback metrics to limit CLS while the webfont loads. */
+  size-adjust: 105%;
+  ascent-override: 95%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+}
+
+[lang='ar'],
+[dir='rtl'],
+.font-arabic {
+  font-family: 'Kanz al-Marjaan', 'Geeza Pro', 'Segoe UI', Tahoma, Arial, sans-serif;
+  font-feature-settings: 'liga', 'calt';
+}
+
+/* ============================================================
+   Design tokens — sourced from signage_app_prototype_v2.html.
+   Do not edit casually; they are the visual contract.
+   ============================================================ */
+:root {
+  --bg: #FAFAF7;
+  --card: #FFFFFF;
+  --surface: #F4F2EC;
+  --tertiary: #EFEDE6;
+
+  --text: #1F1F1D;
+  --muted: #6F6E68;
+  --hint: #A3A09A;
+
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.16);
+
+  --info: #185FA5;
+  --info-bg: #E6F1FB;
+  --info-border: #B8D4F0;
+
+  --success: #3B6D11;
+  --success-bg: #EAF3DE;
+  --success-border: #C5DAA8;
+
+  --warn: #BA7517;
+  --warn-bg: #FAEEDA;
+  --warn-border: #E8C698;
+
+  --danger: #A32D2D;
+  --danger-bg: #FCEBEB;
+  --danger-border: #EFB8B8;
+
+  --purple: #534AB7;
+  --purple-bg: #EEEDFE;
+  --purple-border: #C4C0EC;
+
+  --teal: #0F6E56;
+  --teal-bg: #E1F5EE;
+  --teal-border: #A6D8C5;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  --transition: all 0.15s ease;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Status pill — components/StatusPill.tsx applies one modifier */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.pill--pending    { background: var(--tertiary);  color: #444; }
+.pill--approved   { background: var(--info-bg);   color: var(--info); }
+.pill--designing  { background: var(--purple-bg); color: var(--purple); }
+.pill--printing   { background: var(--warn-bg);   color: var(--warn); }
+.pill--ready      { background: var(--success-bg);color: var(--success); }
+.pill--rejected   { background: var(--danger-bg); color: var(--danger); }
+.pill--cancelled  { background: #F4F2EC;          color: #888; text-decoration: line-through; }
+
+/* Sign-type badges — locked to ISO 7010 hues for safety types */
+.badge-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.badge-type__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.badge-type--prohibition    { background: #FCEBEB; color: #791F1F; }
+.badge-type--prohibition .badge-type__dot { background: #A32D2D; }
+.badge-type--mandatory      { background: #E6F1FB; color: #0C447C; }
+.badge-type--mandatory .badge-type__dot   { background: #185FA5; }
+.badge-type--warning        { background: #FAEEDA; color: #633806; }
+.badge-type--warning .badge-type__dot     { background: #BA7517; }
+.badge-type--safe_condition { background: #EAF3DE; color: #27500A; }
+.badge-type--safe_condition .badge-type__dot { background: #3B6D11; }
+.badge-type--direction      { background: var(--info-bg);   color: var(--info); }
+.badge-type--direction .badge-type__dot   { background: var(--info); }
+.badge-type--place          { background: var(--teal-bg);   color: var(--teal); }
+.badge-type--place .badge-type__dot       { background: var(--teal); }
+.badge-type--notice         { background: var(--purple-bg); color: var(--purple); }
+.badge-type--notice .badge-type__dot      { background: var(--purple); }
+
+/* ============================================================
+   Kanban — production pipeline (DESIGN.md §5.7)
+   ============================================================ */
+.kcol {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  min-height: 480px;
+  overflow: hidden;
+}
+.kcol-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.kcol-h h3 {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.kcol-h .count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--tertiary);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+.kcol-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  max-height: 600px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.kcard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  cursor: grab;
+  transition: var(--transition);
+}
+.kcard:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+.kcard:active {
+  cursor: grabbing;
+}
+.kcard .nm {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.35;
+  word-break: break-word;
+}
+.kcard .meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.kcard .meta .qty {
+  font-weight: 500;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Honor user-level reduced-motion preference globally — DESIGN.md §6.3 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

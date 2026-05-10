@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+dist/
+build/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Editor
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Claude local config
+.claude/CLAUDE.local.md
+.claude/settings.local.json
+
+# OpenWolf runtime
+.wolf/daemon.log
+.wolf/designqc-captures/
