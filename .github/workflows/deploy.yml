@@ -32,6 +32,8 @@ jobs:
             echo "==> Starting/updating services..."
             docker compose up -d --remove-orphans
 
+            set -a && source "$APP_DIR/.env" && set +a
+
             echo "==> Waiting for postgres to be healthy..."
             timeout 60 bash -c 'until docker compose exec -T postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do sleep 2; done'
 
