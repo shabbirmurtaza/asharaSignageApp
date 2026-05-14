@@ -1,0 +1,44 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to DigitalOcean Droplet
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            set -euo pipefail
+
+            APP_DIR="/home/${{ secrets.DO_USER }}/asharaSignageApp"
+
+            echo "==> Pulling latest code..."
+            cd "$APP_DIR"
+            git pull origin main
+
+            echo "==> Building images..."
+            docker compose build
+
+            echo "==> Starting/updating services..."
+            docker compose up -d --remove-orphans
+
+            echo "==> Waiting for postgres to be healthy..."
+            timeout 60 bash -c 'until docker compose exec -T postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do sleep 2; done'
+
+            echo "==> Running migrations..."
+            bash db/migrate.sh
+
+            echo "==> Pruning unused images..."
+            docker image prune -f
+
+            echo "==> Deploy complete."

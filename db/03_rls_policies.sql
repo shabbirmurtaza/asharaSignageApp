@@ -182,46 +182,64 @@ alter table notifications         enable row level security;
 -- ============================================================
 -- MASTERS — read for active users; write super_admin only
 -- ============================================================
+drop policy if exists events_read    on events;
+drop policy if exists events_write   on events;
 create policy events_read    on events
   for select using (auth_active());
 create policy events_write   on events
   for all using (is_super_admin()) with check (is_super_admin());
 
+drop policy if exists venues_read    on venues;
+drop policy if exists venues_write   on venues;
 create policy venues_read    on venues
   for select using (auth_active());
 create policy venues_write   on venues
   for all using (is_super_admin()) with check (is_super_admin());
 
+drop policy if exists zones_read     on zones;
+drop policy if exists zones_write    on zones;
 create policy zones_read     on zones
   for select using (auth_active());
 create policy zones_write    on zones
   for all using (is_super_admin()) with check (is_super_admin());
 
+drop policy if exists event_venues_read  on event_venues;
+drop policy if exists event_venues_write on event_venues;
 create policy event_venues_read  on event_venues
   for select using (auth_active());
 create policy event_venues_write on event_venues
   for all using (is_super_admin()) with check (is_super_admin());
 
+drop policy if exists departments_read   on departments;
+drop policy if exists departments_write  on departments;
 create policy departments_read   on departments
   for select using (auth_active());
 create policy departments_write  on departments
   for all using (is_super_admin()) with check (is_super_admin());
 
+drop policy if exists roles_read         on roles;
+drop policy if exists roles_write        on roles;
 create policy roles_read         on roles
   for select using (auth_active());
 create policy roles_write        on roles
   for all using (is_super_admin()) with check (is_super_admin());
 
+drop policy if exists sign_types_read    on sign_types;
+drop policy if exists sign_types_write   on sign_types;
 create policy sign_types_read    on sign_types
   for select using (auth_active());
 create policy sign_types_write   on sign_types
   for all using (is_super_admin()) with check (is_super_admin());
 
+drop policy if exists sign_templates_read  on sign_templates;
+drop policy if exists sign_templates_write on sign_templates;
 create policy sign_templates_read  on sign_templates
   for select using (auth_active());
 create policy sign_templates_write on sign_templates
   for all using (is_super_admin()) with check (is_super_admin());
 
+drop policy if exists sizes_read         on sizes;
+drop policy if exists sizes_write        on sizes;
 create policy sizes_read         on sizes
   for select using (auth_active());
 create policy sizes_write        on sizes
@@ -229,6 +247,10 @@ create policy sizes_write        on sizes
 
 -- Reads stay open: every authenticated role browses the catalogue. Visibility
 -- gating for department_user happens client-side via the department_id filter.
+drop policy if exists signs_read   on signs;
+drop policy if exists signs_insert on signs;
+drop policy if exists signs_update on signs;
+drop policy if exists signs_delete on signs;
 create policy signs_read         on signs
   for select using (auth_active());
 
@@ -254,6 +276,8 @@ create policy signs_delete       on signs
 -- USERS / ASSIGNMENTS
 -- super_admin sees and writes everything; others see only own row.
 -- ============================================================
+drop policy if exists users_read  on users;
+drop policy if exists users_write on users;
 create policy users_read on users
   for select using (
     is_super_admin() or id = auth_user_id()
@@ -261,6 +285,8 @@ create policy users_read on users
 create policy users_write on users
   for all using (is_super_admin()) with check (is_super_admin());
 
+drop policy if exists ura_read  on user_role_assignments;
+drop policy if exists ura_write on user_role_assignments;
 create policy ura_read on user_role_assignments
   for select using (
     is_super_admin() or user_id = auth_user_id()
@@ -275,6 +301,8 @@ create policy ura_write on user_role_assignments
 -- and updates the queue (approve/reject_signup() also writes here
 -- as SECURITY DEFINER).
 -- ============================================================
+drop policy if exists signup_requests_read  on signup_requests;
+drop policy if exists signup_requests_write on signup_requests;
 create policy signup_requests_read on signup_requests
   for select using (is_super_admin());
 create policy signup_requests_write on signup_requests
@@ -283,6 +311,10 @@ create policy signup_requests_write on signup_requests
 -- ============================================================
 -- USAGE_GROUPS — visibility follows the same scope as usages
 -- ============================================================
+drop policy if exists usage_groups_read   on usage_groups;
+drop policy if exists usage_groups_insert on usage_groups;
+drop policy if exists usage_groups_update on usage_groups;
+drop policy if exists usage_groups_delete on usage_groups;
 create policy usage_groups_read on usage_groups
   for select using (
     is_super_admin()
@@ -321,6 +353,10 @@ create policy usage_groups_delete on usage_groups
 -- ============================================================
 -- USAGES — the busiest policy set
 -- ============================================================
+drop policy if exists usages_read   on usages;
+drop policy if exists usages_insert on usages;
+drop policy if exists usages_update on usages;
+drop policy if exists usages_delete on usages;
 create policy usages_read on usages
   for select using (
     is_super_admin()
@@ -396,6 +432,7 @@ begin
 end;
 $$ language plpgsql;
 
+drop trigger if exists usages_status_transition_check on usages;
 create trigger usages_status_transition_check
   before update on usages
   for each row execute function enforce_usage_status_transition();
@@ -403,6 +440,7 @@ create trigger usages_status_transition_check
 -- ============================================================
 -- USAGE_STATUS_HISTORY — read scoped, writes only via trigger
 -- ============================================================
+drop policy if exists ush_read on usage_status_history;
 create policy ush_read on usage_status_history
   for select using (
     is_super_admin()
@@ -463,6 +501,8 @@ $$;
 -- ============================================================
 -- NOTIFICATIONS — own only; UPDATE limited to read_at
 -- ============================================================
+drop policy if exists notifications_read   on notifications;
+drop policy if exists notifications_update on notifications;
 create policy notifications_read on notifications
   for select using (
     is_super_admin() or user_id = auth_user_id()
