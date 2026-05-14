@@ -11,7 +11,8 @@ fi
 PSQL_CMD="docker compose -f $APP_DIR/docker-compose.yml exec -T postgres psql -U $POSTGRES_USER -d $POSTGRES_DB"
 
 echo "[migrate] extensions..."
-$PSQL_CMD -v "signage.authenticator_password=$AUTHENTICATOR_PASSWORD" -f /sql/01_extensions.sql
+$PSQL_CMD -f /sql/01_extensions.sql
+$PSQL_CMD -c "ALTER ROLE authenticator WITH PASSWORD '$AUTHENTICATOR_PASSWORD';"
 
 SCHEMA_APPLIED=$($PSQL_CMD -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='signs'" 2>/dev/null | tr -d ' \n')
 
