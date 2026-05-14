@@ -24,6 +24,7 @@ jobs:
 
             echo "==> Pulling latest code..."
             cd "$APP_DIR"
+            git config --global --add safe.directory "$APP_DIR"
             git pull origin main
 
             echo "==> Building images..."
