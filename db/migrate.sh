@@ -25,6 +25,9 @@ else
     echo "[migrate] Schema exists — skipping destructive files."
 fi
 
+echo "[migrate] setting jwt_secret GUC..."
+$PSQL_CMD -c "ALTER DATABASE $POSTGRES_DB SET app.jwt_secret = '$JWT_SECRET';"
+
 echo "[migrate] auth functions..."
 $PSQL_CMD -f /sql/02_auth_functions.sql
 
